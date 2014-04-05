@@ -1,0 +1,31 @@
+{
+  "result": "ok",
+  "values": [
+    {
+      "SatObservation": {
+        "ObType": {
+          "ObType1": {
+            "Elevation": 68.90,
+            "Azimuth": 90.78
+          }
+        },
+        "SatelliteNumber": 12345,
+        "ObDate": "2000-03-02",
+        "ObTime": "12:10:25.345"
+      }
+    },
+    {
+      "SatObservation": {
+        "ObType": {
+          "ObType1": {
+            "Elevation": 68.90,
+            "Azimuth": 90.78
+          }
+        },
+        "SatelliteNumber": 12346,
+        "ObDate": "2000-03-02",
+        "ObTime": "12:10:25.345"
+      }
+    }
+  ]
+}
