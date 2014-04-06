@@ -61,6 +61,7 @@ function initialize() {
 		trackCoordinatesArray.forEach(function(ele, index, array) {
 			trackLineArray[index].setMap(null);
 			valueCircleArray[index].setMap(null);
+			trackCoordinatesArray[index] = new Array();
 		});
 	});
 
