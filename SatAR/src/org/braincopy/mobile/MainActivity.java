@@ -24,6 +24,19 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
 /**
+ * Main Activity of SatAR. The coordinate system of actual_orientation has been
+ * adjusted as follows:
+ * <ol>
+ * <li>right-handed coordinate system</li>
+ * <li>when the camera directs east without any lean and incline, azimuth,
+ * pitch, and roll will be 0 (zero).</li>
+ * <li>x axis is direction of moving,</li>
+ * <li>y axis is horizontal right direction,</li>
+ * <li>z axis is vertical down direction,</li>
+ * <li>angle increases for clockwise for all axis. The coordinate system should
+ * be adjusted for each devices.</li>
+ * </ol>
+ * 
  * 
  * @author Hiroaki Tateshita
  * 
