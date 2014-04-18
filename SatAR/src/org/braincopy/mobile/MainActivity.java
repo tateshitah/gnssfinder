@@ -53,6 +53,8 @@ public class MainActivity extends Activity implements SensorEventListener,
 	private LocationManager locationManager;
 	private float lat, lon;
 	private GeomagneticField geomagneticField;
+	private Satellite[] satellites;
+	private SatelliteInfoWorker worker;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,9 @@ public class MainActivity extends Activity implements SensorEventListener,
 		lat = (float) 35.660994;
 		lon = (float) 139.677619;
 
-		Satellite[] satellites = new Satellite[2];
+		worker = new SatelliteInfoWorker();
+
+		satellites = new Satellite[2];
 		satellites[0] = new Satellite(this);
 		satellites[1] = new Satellite(this);
 		satellites[1].setAzimuth(120.0f);
@@ -201,7 +205,10 @@ public class MainActivity extends Activity implements SensorEventListener,
 		geomagneticField = new GeomagneticField((float) arg0.getLatitude(),
 				(float) arg0.getLongitude(), (float) arg0.getAltitude(),
 				new Date().getTime());
-
+		if (this.satellites != null) {
+			satellites = worker.createSatelliteArray(lat, lon,
+					new Date(System.currentTimeMillis()));
+		}
 	}
 
 	@Override
