@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+	<result>ok</result>
+	<values>
+		<SatObservation>
+		<!-- refer MP00B0000055 A Space Surveillance Ontology -->
+			<ObType>
+				<ObType1>
+					<Elevation units="degrees">68.90</Elevation>
+					<Azimuth units="degrees">90.78</Azimuth>
+				</ObType1>
+			</ObType>
+			<SatelliteNumber>12345</SatelliteNumber>
+			<ObDate>2000-03-02</ObDate>
+			<ObTime>12:10:25.345</ObTime>
+		</SatObservation>
+		<SatObservation></SatObservation>
+	</values>
+</response>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+	<result>ok</result>
+	<values>
+		<SatObservation>
+			<!-- refer MP00B0000055 A Space Surveillance Ontology -->
+			<Sensor>
+				<SensorLocation>
+					<Latitude units="degrees" hemisphere="N">
+						-7.980654321
+					</Latitude>
+					<Longitude units="degrees" hemisphere="E">
+						345.54021
+					</Longitude>
+					<Altitude units="meters">37.1234560</Altitude>
+				</SensorLocation>
+			</Sensor>
+			<SatelliteNumber>12345</SatelliteNumber>
+			<ObDate>2000-03-02</ObDate>
+			<ObTime>12:10:25.345</ObTime>
+		</SatObservation>
+		<SatObservation></SatObservation>
+	</values>
+</response>
