@@ -1,4 +1,5 @@
 *.class
+*.ini
 
 # Package Files #
 *.war
