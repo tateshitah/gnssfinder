@@ -67,7 +67,7 @@ import sgp4v.Sgp4Unit;
 /**
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.5
+ * @version 0.0.9
  * 
  */
 @Path("az_and_el")
@@ -140,6 +140,10 @@ public class AzimuthAndElevationResource {
 				longitude * Math.PI / 180, 0).convertToECEF();
 
 		String dataEntity = "";
+		int numOfResultsOfEachSat = term / step;
+		if (numOfResultsOfEachSat == 0) {
+			numOfResultsOfEachSat = 1;
+		}
 		try {
 			ArrayList<TLEString> tleList = worker.getTLEList(calendar, gnssStr);
 			Iterator<TLEString> ite = tleList.iterator();
@@ -165,7 +169,7 @@ public class AzimuthAndElevationResource {
 					GregorianCalendar dateAndTime = null;
 					double days = 0;
 					Sgp4Data data = null;
-					for (int i = 0; i < results.size(); i++) {
+					for (int i = 0; i < numOfResultsOfEachSat; i++) {
 						data = (Sgp4Data) results.elementAt(i);
 						days = startDay + i * (double) step
 								/ (double) ConstantNumber.SECONDS_DAY;
@@ -228,7 +232,7 @@ public class AzimuthAndElevationResource {
 		if ("xml".equalsIgnoreCase(format)) {
 			String entity = format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 					+ "<response><result>ok</result><values>%s</values>"
-					+ "<ver>0.0.5</ver></response>", data_entity);
+					+ "<ver>0.0.9</ver></response>", data_entity);
 			builder = builder.entity(entity);
 			builder = builder.type(MediaType.TEXT_XML_TYPE);
 		} else if ("json".equalsIgnoreCase(format)) {

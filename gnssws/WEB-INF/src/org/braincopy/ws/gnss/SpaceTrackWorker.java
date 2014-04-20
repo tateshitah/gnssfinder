@@ -181,7 +181,7 @@ public class SpaceTrackWorker {
 				TimeZone.getTimeZone("UTC"));
 		result.set(Calendar.YEAR, year);
 		int daysOfYear = (int) days;
-		result.set(Calendar.DAY_OF_YEAR, daysOfYear);
+		result.set(Calendar.DAY_OF_YEAR, daysOfYear + 1);
 		double hours = (days - (double) daysOfYear) * 24;
 		int hourOfDay = (int) hours;
 		result.set(Calendar.HOUR_OF_DAY, hourOfDay);
@@ -199,7 +199,7 @@ public class SpaceTrackWorker {
 	 * @return
 	 */
 	public double getDoubleDay(Calendar calendar) {
-		double result = (double) calendar.get(Calendar.DAY_OF_YEAR);
+		double result = (double) calendar.get(Calendar.DAY_OF_YEAR) - 1;
 		result += ((double) calendar.get(Calendar.HOUR_OF_DAY)) / 24.0;
 		result += ((double) calendar.get(Calendar.MINUTE)) / (24.0 * 60);
 		result += ((double) calendar.get(Calendar.SECOND)) / (24.0 * 60 * 60);
