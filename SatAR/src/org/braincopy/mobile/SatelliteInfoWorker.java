@@ -16,7 +16,8 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
  * @author Hiroaki Tateshita
  * 
  */
-public class SatelliteInfoWorker {
+public class SatelliteInfoWorker implements Runnable {
+	float lat, lon;
 
 	public SatelliteInfoWorker() {
 		// TODO Auto-generated constructor stub
@@ -41,6 +42,18 @@ public class SatelliteInfoWorker {
 
 		System.out.println(text);
 		return null;
+	}
+
+	@Override
+	public void run() {
+		createSatelliteArray(lat, lon, new Date(System.currentTimeMillis()));
+
+	}
+
+	public void setLatLon(float _lat, float _lon) {
+		this.lat = _lat;
+		this.lon = _lon;
+
 	}
 
 }

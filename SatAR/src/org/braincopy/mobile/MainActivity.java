@@ -15,7 +15,10 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -81,8 +84,14 @@ public class MainActivity extends Activity implements SensorEventListener,
 		lat = (float) 35.660994;
 		lon = (float) 139.677619;
 
-		worker = new SatelliteInfoWorker();
-
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+		final Handler handler = new Handler();
+		if (networkInfo != null && networkInfo.isConnected()) {
+			worker = new SatelliteInfoWorker();
+			worker.setLatLon(lat, lon);
+			handler.post(worker);
+		}
 		satellites = new Satellite[2];
 		satellites[0] = new Satellite(this);
 		satellites[1] = new Satellite(this);
