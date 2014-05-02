@@ -1,5 +1,6 @@
 *.class
 *.ini
+bin
 
 # Package Files #
 *.war
