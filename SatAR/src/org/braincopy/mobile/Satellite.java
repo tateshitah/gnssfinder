@@ -25,6 +25,9 @@ public class Satellite {
 	 */
 	private float elevation;
 
+	private String catNo;
+	private String description;
+
 	Satellite(Context context) {
 		/*
 		 * default
@@ -68,6 +71,22 @@ public class Satellite {
 
 		result[0] = new Satellite(context);
 		return result;
+	}
+
+	public String getCatNo() {
+		return catNo;
+	}
+
+	public void setCatNo(String catNo) {
+		this.catNo = catNo;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

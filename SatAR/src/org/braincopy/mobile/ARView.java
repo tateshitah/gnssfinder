@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.View;
 
 /**
@@ -44,6 +43,8 @@ public class ARView extends View {
 	 */
 	final float hVeiwAngle = 50.0f;
 
+	private String statusString = "connecting...";
+
 	public ARView(Context context) {
 		super(context);
 		paint = new Paint();
@@ -74,14 +75,19 @@ public class ARView extends View {
 
 		drawDirection(canvas, paint, height);
 		drawSatellites(canvas, paint);
+		drawStatus(canvas, paint);
 
+	}
+
+	private void drawStatus(Canvas canvas, Paint paint2) {
+		canvas.drawText(this.statusString, 50, canvas.getHeight() - 50, paint);
 	}
 
 	private void drawSatellites(Canvas canvas, Paint paint) {
 		float dx = 0;
 		float dy = 0;
 		Matrix matrix = new Matrix();
-		float scale = 0.2f;
+		float scale = 1.0f;
 		matrix.postScale(scale, scale);
 		if (this.satellites != null) {
 			for (int i = 0; i < satellites.length; i++) {
@@ -104,9 +110,11 @@ public class ARView extends View {
 							.getElevation()) / (vVeiwAngle * 0.5) * 0.5));
 				}
 				matrix.postTranslate(dx, dy);
-				Log.e("test", "i, dir, az: " + i + ", " + direction + ", "
-						+ satellites[i].getAzimuth());
-
+				/*
+				 * Log.e("test", "i, dir, az, el: " + i + ", " + direction +
+				 * ", " + satellites[i].getAzimuth() + ", " +
+				 * satellites[i].getElevation());
+				 */
 				canvas.drawBitmap(satellites[i].getImage(), matrix, paint);
 				matrix.postTranslate(-dx, -dy);
 			}
@@ -181,6 +189,11 @@ public class ARView extends View {
 
 	public void setSatellites(Satellite[] satellites) {
 		this.satellites = satellites;
+	}
+
+	public void setStatus(String string) {
+		this.statusString = string;
+
 	}
 
 }

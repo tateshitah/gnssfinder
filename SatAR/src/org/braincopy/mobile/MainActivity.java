@@ -1,5 +1,11 @@
 package org.braincopy.mobile;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +13,9 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -18,7 +27,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,7 +48,6 @@ import android.view.ViewGroup.LayoutParams;
  * <li>angle increases for clockwise for all axis. The coordinate system should
  * be adjusted for each devices.</li>
  * </ol>
- * 
  * 
  * @author Hiroaki Tateshita
  * 
@@ -86,18 +94,31 @@ public class MainActivity extends Activity implements SensorEventListener,
 
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-		final Handler handler = new Handler();
+		// final Handler handler = new Handler();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			worker = new SatelliteInfoWorker();
 			worker.setLatLon(lat, lon);
-			handler.post(worker);
+			worker.setCurrentDate(new Date(System.currentTimeMillis()));
+			/*
+			 * worker.setMessageListener(new MessageListener() {
+			 * 
+			 * @Override public void sendMessage(String message) {
+			 * handler.post(new Runnable() {
+			 * 
+			 * @Override public void run() { // worker.createSatelliteArray(lat,
+			 * lon); arView.setStatus("connected.");
+			 * 
+			 * } }); } });
+			 */
+			worker.start();
+			worker.setStatus(SatelliteInfoWorker.CONNECTED);
+			arView.setStatus("connected");
 		}
-		satellites = new Satellite[2];
-		satellites[0] = new Satellite(this);
-		satellites[1] = new Satellite(this);
-		satellites[1].setAzimuth(120.0f);
-		arView.setSatellites(satellites);
-
+		/*
+		 * satellites = new Satellite[2]; satellites[0] = new Satellite(this);
+		 * satellites[1] = new Satellite(this);
+		 * satellites[1].setAzimuth(120.0f); arView.setSatellites(satellites);
+		 */
 	}
 
 	@Override
@@ -204,6 +225,74 @@ public class MainActivity extends Activity implements SensorEventListener,
 
 			arView.drawScreen(actual_orientation, lat, lon);
 		}
+		if (worker.getStatus() == SatelliteInfoWorker.RECEIVED_SATINFO) {
+			this.satellites = worker.getSatArray();
+			if (loadImages()) {
+				worker.setStatus(SatelliteInfoWorker.COMPLETED);
+				arView.setSatellites(satellites);
+			}
+		} else if (worker.getStatus() == SatelliteInfoWorker.COMPLETED) {
+			arView.setStatus("Satellite information loaded.");
+		}
+	}
+
+	private boolean loadImages() {
+		boolean result = false;
+		Resources resources = this.getResources();
+		InputStream is;
+		try {
+			AssetManager assetManager = resources.getAssets();
+			is = assetManager.open("satelliteDataBase.txt");
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			String buf = null;
+			try {
+				while ((buf = br.readLine()) != null) {
+					list.add(buf.split("\t"));
+				}
+				String gnssStr = "";
+				for (int i = 0; i < satellites.length; i++) {
+					gnssStr = getGnssStr(satellites[i].getCatNo(), list);
+					if (gnssStr.equals("qzss")) {
+						satellites[i].setImage(BitmapFactory.decodeResource(
+								resources, R.drawable.qzss));
+					} else if (gnssStr.equals("galileo")) {
+						satellites[i].setImage(BitmapFactory.decodeResource(
+								resources, R.drawable.galileo));
+					}
+
+				}
+				result = true;
+			} catch (IOException e) {
+				Log.e("hiro",
+						"failed when to read a line of the satellite database text file."
+								+ e);
+				e.printStackTrace();
+			}
+			is.close();
+			br.close();
+		} catch (FileNotFoundException e) {
+			Log.e("hiro", "" + e);
+			e.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		return result;
+	}
+
+	private String getGnssStr(String catNo, ArrayList<String[]> list) {
+		String result = null;
+		String[] tmpStrArray = null;
+		for (int i = 0; i < list.size(); i++) {
+			tmpStrArray = list.get(i);
+			if (catNo.equals(tmpStrArray[0])) {
+				result = tmpStrArray[2];
+				break;
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -215,8 +304,7 @@ public class MainActivity extends Activity implements SensorEventListener,
 				(float) arg0.getLongitude(), (float) arg0.getAltitude(),
 				new Date().getTime());
 		if (this.satellites != null) {
-			satellites = worker.createSatelliteArray(lat, lon,
-					new Date(System.currentTimeMillis()));
+			// satellites = worker.createSatelliteArray(lat, lon);
 		}
 	}
 
