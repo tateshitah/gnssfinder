@@ -188,7 +188,6 @@ public class MainActivity extends Activity implements SensorEventListener,
 		locationManager.removeUpdates(this);
 		sensorManager.unregisterListener(this);
 
-		sensorManager.unregisterListener(this);
 	}
 
 	@Override
@@ -225,14 +224,16 @@ public class MainActivity extends Activity implements SensorEventListener,
 
 			arView.drawScreen(actual_orientation, lat, lon);
 		}
-		if (worker.getStatus() == SatelliteInfoWorker.RECEIVED_SATINFO) {
-			this.satellites = worker.getSatArray();
-			if (loadImages()) {
-				worker.setStatus(SatelliteInfoWorker.COMPLETED);
-				arView.setSatellites(satellites);
+		if (worker != null) {
+			if (worker.getStatus() == SatelliteInfoWorker.RECEIVED_SATINFO) {
+				this.satellites = worker.getSatArray();
+				if (loadImages()) {
+					worker.setStatus(SatelliteInfoWorker.COMPLETED);
+					arView.setSatellites(satellites);
+				}
+			} else if (worker.getStatus() == SatelliteInfoWorker.COMPLETED) {
+				arView.setStatus("Satellite information loaded.");
 			}
-		} else if (worker.getStatus() == SatelliteInfoWorker.COMPLETED) {
-			arView.setStatus("Satellite information loaded.");
 		}
 	}
 
@@ -244,15 +245,17 @@ public class MainActivity extends Activity implements SensorEventListener,
 			AssetManager assetManager = resources.getAssets();
 			is = assetManager.open("satelliteDataBase.txt");
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			ArrayList<String[]> list = new ArrayList<String[]>();
+			ArrayList<String[]> datalist = new ArrayList<String[]>();
 			String buf = null;
 			try {
 				while ((buf = br.readLine()) != null) {
-					list.add(buf.split("\t"));
+					datalist.add(buf.split("\t"));
 				}
 				String gnssStr = "";
 				for (int i = 0; i < satellites.length; i++) {
-					gnssStr = getGnssStr(satellites[i].getCatNo(), list);
+					gnssStr = getGnssStr(satellites[i].getCatNo(), datalist);
+					satellites[i].setDescription(getSatInfo(
+							satellites[i].getCatNo(), datalist));
 					if (gnssStr.equals("qzss")) {
 						satellites[i].setImage(BitmapFactory.decodeResource(
 								resources, R.drawable.qzss));
@@ -275,10 +278,23 @@ public class MainActivity extends Activity implements SensorEventListener,
 			Log.e("hiro", "" + e);
 			e.printStackTrace();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
+			Log.e("hiro", "" + e1);
 			e1.printStackTrace();
 		}
 
+		return result;
+	}
+
+	private String getSatInfo(String catNo, ArrayList<String[]> datalist) {
+		String result = null;
+		String[] tmpStrArray = null;
+		for (int i = 0; i < datalist.size(); i++) {
+			tmpStrArray = datalist.get(i);
+			if (catNo.equals(tmpStrArray[0])) {
+				result = tmpStrArray[3];
+				break;
+			}
+		}
 		return result;
 	}
 

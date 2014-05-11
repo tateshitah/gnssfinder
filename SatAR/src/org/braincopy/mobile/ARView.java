@@ -116,6 +116,8 @@ public class ARView extends View {
 				 * satellites[i].getElevation());
 				 */
 				canvas.drawBitmap(satellites[i].getImage(), matrix, paint);
+				canvas.drawText(satellites[i].getDescription(), dx + 30, dy,
+						paint);
 				matrix.postTranslate(-dx, -dy);
 			}
 		}
