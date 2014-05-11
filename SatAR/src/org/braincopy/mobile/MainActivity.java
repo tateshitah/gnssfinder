@@ -21,6 +21,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -71,12 +72,6 @@ public class MainActivity extends Activity implements SensorEventListener,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		/*
-		 * getWindow().clearFlags(
-		 * WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-		 * getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		 * requestWindowFeature(Window.FEATURE_NO_TITLE);
-		 */
 		arView = new ARView(this);
 
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -94,31 +89,14 @@ public class MainActivity extends Activity implements SensorEventListener,
 
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-		// final Handler handler = new Handler();
 		if (networkInfo != null && networkInfo.isConnected()) {
 			worker = new SatelliteInfoWorker();
 			worker.setLatLon(lat, lon);
 			worker.setCurrentDate(new Date(System.currentTimeMillis()));
-			/*
-			 * worker.setMessageListener(new MessageListener() {
-			 * 
-			 * @Override public void sendMessage(String message) {
-			 * handler.post(new Runnable() {
-			 * 
-			 * @Override public void run() { // worker.createSatelliteArray(lat,
-			 * lon); arView.setStatus("connected.");
-			 * 
-			 * } }); } });
-			 */
 			worker.start();
 			worker.setStatus(SatelliteInfoWorker.CONNECTED);
 			arView.setStatus("connected");
 		}
-		/*
-		 * satellites = new Satellite[2]; satellites[0] = new Satellite(this);
-		 * satellites[1] = new Satellite(this);
-		 * satellites[1].setAzimuth(120.0f); arView.setSatellites(satellites);
-		 */
 	}
 
 	@Override
@@ -224,6 +202,7 @@ public class MainActivity extends Activity implements SensorEventListener,
 
 			arView.drawScreen(actual_orientation, lat, lon);
 		}
+		GpsStatus gpsStatus = locationManager.getGpsStatus(null);
 		if (worker != null) {
 			if (worker.getStatus() == SatelliteInfoWorker.RECEIVED_SATINFO) {
 				this.satellites = worker.getSatArray();

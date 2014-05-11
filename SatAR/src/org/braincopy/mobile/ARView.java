@@ -56,11 +56,11 @@ public class ARView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 
-		canvas.drawText("Direction: " + direction, 100, 100, paint);
-		canvas.drawText("Pitch: " + pitch, 100, 150, paint);
-		canvas.drawText("Roll: " + roll, 100, 200, paint);
-		canvas.drawText("Lat: " + lat, 100, 250, paint);
-		canvas.drawText("Lon: " + lon, 100, 300, paint);
+		canvas.drawText("Direction: " + direction, 50, 50, paint);
+		canvas.drawText("Pitch: " + pitch, 50, 100, paint);
+		canvas.drawText("Roll: " + roll, 50, 150, paint);
+		canvas.drawText("Lat: " + lat, 50, 200, paint);
+		canvas.drawText("Lon: " + lon, 50, 250, paint);
 
 		float height, startX, stopX, startY, stopY;
 

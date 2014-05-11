@@ -40,6 +40,7 @@ public class SatelliteInfoWorker extends Thread {
 	static final int COMPLETED = 3;
 	static final int RECEIVED_SATINFO = 4;
 	static final int LOADING_IMAGES = 5;
+	static final int INFORMATION_LOADED_WO_LOCATION = 6;
 
 	public SatelliteInfoWorker() {
 	}
@@ -136,6 +137,7 @@ public class SatelliteInfoWorker extends Thread {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 			Log.e("error", "error when trying executing request.: " + e1);
+		} finally {
 		}
 	}
 
