@@ -42,6 +42,7 @@ public class SatelliteInfoWorker extends Thread {
 	static final int LOADING_IMAGES = 5;
 	static final int INFORMATION_LOADED_WO_LOCATION = 6;
 	static final int LOCATION_UPDATED = 7;
+	static final int INFORMATION_LOADED_W_LOCATION = 8;
 
 	public SatelliteInfoWorker() {
 	}
@@ -116,7 +117,7 @@ public class SatelliteInfoWorker extends Thread {
 					doc = docBuilder.parse(entity.getContent());
 					createSatelliteArray(doc);
 					if (this.getStatus() == SatelliteInfoWorker.IMAGE_LOADED) {
-						setStatus(SatelliteInfoWorker.COMPLETED);
+						setStatus(SatelliteInfoWorker.INFORMATION_LOADED_W_LOCATION);
 					} else {
 						setStatus(SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION);
 					}
@@ -142,6 +143,7 @@ public class SatelliteInfoWorker extends Thread {
 			e1.printStackTrace();
 			Log.e("error", "error when trying executing request.: " + e1);
 		} finally {
+
 		}
 	}
 

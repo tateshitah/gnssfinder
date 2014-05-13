@@ -209,6 +209,12 @@ public class MainActivity extends Activity implements SensorEventListener,
 					arView.setSatellites(satellites);
 					arView.setStatus("getting location...");
 				}
+			} else if (worker.getStatus() == SatelliteInfoWorker.INFORMATION_LOADED_W_LOCATION) {
+				this.satellites = worker.getSatArray();
+				if (loadImages()) {
+					worker.setStatus(SatelliteInfoWorker.COMPLETED);
+					arView.setSatellites(satellites);
+				}
 			}
 		}
 	}
@@ -297,6 +303,10 @@ public class MainActivity extends Activity implements SensorEventListener,
 				new Date().getTime());
 		if (this.satellites != null && worker != null) {
 			if (worker.getStatus() == SatelliteInfoWorker.IMAGE_LOADED) {
+				worker = new SatelliteInfoWorker();
+				worker.setStatus(SatelliteInfoWorker.IMAGE_LOADED);
+				worker.setLatLon(lat, lon);
+				worker.setCurrentDate(new Date(System.currentTimeMillis()));
 				worker.start();
 			} else if (worker.getStatus() == SatelliteInfoWorker.COMPLETED) {
 				this.arView
