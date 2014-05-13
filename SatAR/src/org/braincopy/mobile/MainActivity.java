@@ -21,7 +21,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -202,16 +201,14 @@ public class MainActivity extends Activity implements SensorEventListener,
 
 			arView.drawScreen(actual_orientation, lat, lon);
 		}
-		GpsStatus gpsStatus = locationManager.getGpsStatus(null);
 		if (worker != null) {
-			if (worker.getStatus() == SatelliteInfoWorker.RECEIVED_SATINFO) {
+			if (worker.getStatus() == SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION) {
 				this.satellites = worker.getSatArray();
 				if (loadImages()) {
-					worker.setStatus(SatelliteInfoWorker.COMPLETED);
+					worker.setStatus(SatelliteInfoWorker.IMAGE_LOADED);
 					arView.setSatellites(satellites);
+					arView.setStatus("getting location...");
 				}
-			} else if (worker.getStatus() == SatelliteInfoWorker.COMPLETED) {
-				arView.setStatus("Satellite information loaded.");
 			}
 		}
 	}
@@ -298,8 +295,13 @@ public class MainActivity extends Activity implements SensorEventListener,
 		geomagneticField = new GeomagneticField((float) arg0.getLatitude(),
 				(float) arg0.getLongitude(), (float) arg0.getAltitude(),
 				new Date().getTime());
-		if (this.satellites != null) {
-			// satellites = worker.createSatelliteArray(lat, lon);
+		if (this.satellites != null && worker != null) {
+			if (worker.getStatus() == SatelliteInfoWorker.IMAGE_LOADED) {
+				worker.start();
+			} else if (worker.getStatus() == SatelliteInfoWorker.COMPLETED) {
+				this.arView
+						.setStatus("position is updated and information loaded.");
+			}
 		}
 	}
 

@@ -38,9 +38,10 @@ public class SatelliteInfoWorker extends Thread {
 	static final int CONNECTING = 1;
 	static final int CONNECTED = 2;
 	static final int COMPLETED = 3;
-	static final int RECEIVED_SATINFO = 4;
+	static final int IMAGE_LOADED = 4;
 	static final int LOADING_IMAGES = 5;
 	static final int INFORMATION_LOADED_WO_LOCATION = 6;
+	static final int LOCATION_UPDATED = 7;
 
 	public SatelliteInfoWorker() {
 	}
@@ -114,8 +115,11 @@ public class SatelliteInfoWorker extends Thread {
 					DocumentBuilder docBuilder = factory.newDocumentBuilder();
 					doc = docBuilder.parse(entity.getContent());
 					createSatelliteArray(doc);
-					setStatus(SatelliteInfoWorker.RECEIVED_SATINFO);
-
+					if (this.getStatus() == SatelliteInfoWorker.IMAGE_LOADED) {
+						setStatus(SatelliteInfoWorker.COMPLETED);
+					} else {
+						setStatus(SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION);
+					}
 				} catch (ParserConfigurationException e) {
 					Log.e("hiro", "context might be not expecting xml. " + e);
 					e.printStackTrace();
