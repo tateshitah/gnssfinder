@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -92,7 +93,8 @@ public class SatelliteInfoWorker extends Thread {
 		builder.encodedAuthority("braincopy.org");
 		builder.path("/gnssws/az_and_el");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss",
-				Locale.ENGLISH);
+				Locale.US);
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 		builder.appendQueryParameter("dateTime", sdf.format(currentDate));
 		builder.appendQueryParameter("lat", Float.toString(lat));
 		builder.appendQueryParameter("lon", Float.toString(lon));
