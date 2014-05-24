@@ -148,6 +148,12 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 	}
 
 	@Override
+	public void onPause() {
+		super.onPause();
+		cameraView.stopPreviewAndFreeCamera();
+	}
+
+	@Override
 	public void onStop() {
 		super.onStop();
 		locationManager.removeUpdates(this);
