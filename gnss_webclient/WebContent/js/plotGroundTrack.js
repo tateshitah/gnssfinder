@@ -23,41 +23,72 @@ function initialize() {
 	var mapOptions = {
 		zoom : 2,
 		center : new google.maps.LatLng(32.068235, 131.129172),
-		mapTypeId : google.maps.MapTypeId.ROADMAP,
-		disableDoubleClickZoom: true
+		mapTypeId : google.maps.MapTypeId.SATELLITE,
+		disableDoubleClickZoom : true,
+		streetViewControl : false,
+		mapTypeControl:false
 	};
 
 	/* Generating map */
 	map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
 	/* Initializing track coordinates array */
-	for(var i=0;i<5;i++){
-		trackCoordinatesArray[i]=new Array();
+	for (var i = 0; i < 5; i++) {
+		trackCoordinatesArray[i] = new Array();
 	}
+
+	/* Setting Current date and time */
+	var currentDateTime = new Date();
+	var dateStr = "";
+	var timeStr = "";
+	dateStr = currentDateTime.getUTCFullYear() + "-";
+	if (currentDateTime.getUTCMonth() < 9) {
+		dateStr += "0";
+	}
+	dateStr += (currentDateTime.getUTCMonth() + 1) + "-";
+	if (currentDateTime.getUTCDate() < 10) {
+		dateStr += "0";
+	}
+	dateStr += currentDateTime.getUTCDate();
+	$('#datepicker').val(dateStr);
+
+	if (currentDateTime.getUTCHours() < 10) {
+		timeStr = "0";
+	}
+	timeStr += currentDateTime.getUTCHours() + ":";
+	if (currentDateTime.getUTCMinutes() < 10) {
+		timeStr += "0";
+	}
+	timeStr += currentDateTime.getUTCMinutes() + ":";
+	if (currentDateTime.getUTCSeconds() < 10) {
+		timeStr += "0";
+	}
+	timeStr += currentDateTime.getUTCSeconds();
+	$('#timepicker').val(timeStr);
 
 	/* Event when click */
 	google.maps.event.addListener(map, 'click', function(event) {
-		update_timeout = setTimeout(function(){
-		//alert("here click event");
-		var url_Date_temp = $('#datepicker').val();
-		if (url_Date_temp != "") {
-			var url_Time_temp = $('#timepicker').val();
-			if (url_Time_temp != "") {
-				url_DateTime = url_Date_temp + "_" + url_Time_temp;
+		update_timeout = setTimeout(function() {
+			// alert("here click event");
+			var url_Date_temp = $('#datepicker').val();
+			if (url_Date_temp != "") {
+				var url_Time_temp = $('#timepicker').val();
+				if (url_Time_temp != "") {
+					url_DateTime = url_Date_temp + "_" + url_Time_temp;
+				}
 			}
-		}
-		gnssString=$('#sel1').val();
-		var url = "http://braincopy.org/gnssws/groundTrack?" + "dateTime="
-				+ url_DateTime + "&gnss=" + gnssString
-				+ "&format=jsonp&term=86400&step=900";
-		load_src(url);
-		},200);
+			gnssString = $('#sel1').val();
+			var url = "http://braincopy.org/gnssws/groundTrack?" + "dateTime="
+					+ url_DateTime + "&gnss=" + gnssString
+					+ "&format=jsonp&term=86400&step=900";
+			load_src(url);
+		}, 200);
 	});
-	
+
 	/* Event when double click */
-	google.maps.event.addListener(map, 'dblclick', function(event){
+	google.maps.event.addListener(map, 'dblclick', function(event) {
 		clearTimeout(update_timeout);
-		//alert("here double click event");
+		// alert("here double click event");
 		trackCoordinatesArray.forEach(function(ele, index, array) {
 			trackLineArray[index].setMap(null);
 			valueCircleArray[index].setMap(null);
@@ -79,37 +110,37 @@ function load_src(url) {
 
 function plotAllSatellites(values) {
 	var satNo = new Array();
-	for (var i=0 ; i<5 ; i++){
-		satNo[i]=0;
+	for (var i = 0; i < 5; i++) {
+		satNo[i] = 0;
 	}
 	trackCoordinates = new Array();
 	values.forEach(function(ele, index, array) {
-		if(ele.SatObservation.SatelliteNumber == 37158){
-			//QZSS
+		if (ele.SatObservation.SatelliteNumber == 37158) {
+			// QZSS
 			trackCoordinatesArray[0][satNo[0]] = new google.maps.LatLng(
 					ele.SatObservation.Sensor.SensorLocation.Latitude,
 					ele.SatObservation.Sensor.SensorLocation.Longitude);
 			satNo[0]++;
-		}else if(ele.SatObservation.SatelliteNumber == 37846){
-			//Galileo
+		} else if (ele.SatObservation.SatelliteNumber == 37846) {
+			// Galileo
 			trackCoordinatesArray[1][satNo[1]] = new google.maps.LatLng(
 					ele.SatObservation.Sensor.SensorLocation.Latitude,
 					ele.SatObservation.Sensor.SensorLocation.Longitude);
 			satNo[1]++;
-		}else if(ele.SatObservation.SatelliteNumber == 37847){
-			//Galileo
+		} else if (ele.SatObservation.SatelliteNumber == 37847) {
+			// Galileo
 			trackCoordinatesArray[2][satNo[2]] = new google.maps.LatLng(
 					ele.SatObservation.Sensor.SensorLocation.Latitude,
 					ele.SatObservation.Sensor.SensorLocation.Longitude);
 			satNo[2]++;
-		}else if(ele.SatObservation.SatelliteNumber == 38857){
-			//Galileo
+		} else if (ele.SatObservation.SatelliteNumber == 38857) {
+			// Galileo
 			trackCoordinatesArray[3][satNo[3]] = new google.maps.LatLng(
 					ele.SatObservation.Sensor.SensorLocation.Latitude,
 					ele.SatObservation.Sensor.SensorLocation.Longitude);
 			satNo[3]++;
-		}else if(ele.SatObservation.SatelliteNumber == 38858){
-			//Galileo
+		} else if (ele.SatObservation.SatelliteNumber == 38858) {
+			// Galileo
 			trackCoordinatesArray[4][satNo[4]] = new google.maps.LatLng(
 					ele.SatObservation.Sensor.SensorLocation.Latitude,
 					ele.SatObservation.Sensor.SensorLocation.Longitude);
@@ -119,7 +150,7 @@ function plotAllSatellites(values) {
 	trackCoordinatesArray.forEach(function(ele, index, array) {
 		trackLineArray[index] = new google.maps.Polyline({
 			path : trackCoordinatesArray[index],
-			strokeColor : '#00008B',
+			strokeColor : '#FF4040',
 			strokeOpacity : 1.0,
 			strokeWeight : 2
 		});
@@ -134,12 +165,12 @@ function plotAllSatellites(values) {
 			center : trackCoordinatesArray[index][0],
 			radius : radius
 		});
-		
+
 	});
 }
 
 function colorString(value) {
-	return '#00008B';
+	return '#FF4040';
 }
 
 function addInfowindow(text, latLng) {
