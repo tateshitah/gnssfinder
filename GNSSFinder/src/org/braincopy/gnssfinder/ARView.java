@@ -1,5 +1,6 @@
 package org.braincopy.gnssfinder;
 
+
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Canvas;
