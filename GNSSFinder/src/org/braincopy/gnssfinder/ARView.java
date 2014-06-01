@@ -1,6 +1,5 @@
 package org.braincopy.gnssfinder;
 
-
 import android.app.Fragment;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -144,7 +143,7 @@ public class ARView extends View {
 		startY = 100;
 		stopY = height;
 		canvas.drawLine(startX, startY, stopX, stopY, paint);
-		canvas.drawText("W", startX, startY, paint);
+		canvas.drawText("WEST", startX, startY, paint);
 
 		// draw south
 		startX = (float) (canvas.getWidth() * (0.5 - (direction - 90)
@@ -154,7 +153,7 @@ public class ARView extends View {
 		startY = 100;
 		stopY = height;
 		canvas.drawLine(startX, startY, stopX, stopY, paint);
-		canvas.drawText("S", startX, startY, paint);
+		canvas.drawText("SOUTH", startX, startY, paint);
 
 		// draw east
 		if (direction > 270) {
@@ -171,7 +170,7 @@ public class ARView extends View {
 		startY = 100;
 		stopY = height;
 		canvas.drawLine(startX, startY, stopX, stopY, paint);
-		canvas.drawText("E", startX, startY, paint);
+		canvas.drawText("EAST", startX, startY, paint);
 
 		// draw north
 		startX = (float) (canvas.getWidth() * (0.5 - (direction - 270)
@@ -181,7 +180,7 @@ public class ARView extends View {
 		startY = 100;
 		stopY = height;
 		canvas.drawLine(startX, startY, stopX, stopY, paint);
-		canvas.drawText("N", startX, startY, paint);
+		canvas.drawText("NORTH", startX, startY, paint);
 
 	}
 
