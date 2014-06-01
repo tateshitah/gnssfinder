@@ -9,13 +9,17 @@
  */
 
 var map;
-var radius = 100000;// [m]
 var gnssString = "JE";
 var url_DateTime = "2014-03-01_00:00:00";
-var valueCircleArray = new Array();
 var trackLineArray = new Array();
 var trackCoordinatesArray = new Array();
 var update_timeout = null;
+var markerArray = new Array();
+var satArray = new Array();
+var satNo = new Array();
+for (var i = 0; i < 5; i++) {
+	satNo[i] = 0;
+}
 
 function initialize() {
 
@@ -26,7 +30,7 @@ function initialize() {
 		mapTypeId : google.maps.MapTypeId.SATELLITE,
 		disableDoubleClickZoom : true,
 		streetViewControl : false,
-		mapTypeControl:false
+		mapTypeControl : false
 	};
 
 	/* Generating map */
@@ -91,7 +95,7 @@ function initialize() {
 		// alert("here double click event");
 		trackCoordinatesArray.forEach(function(ele, index, array) {
 			trackLineArray[index].setMap(null);
-			valueCircleArray[index].setMap(null);
+			markerArray[index].setMap(null);
 			trackCoordinatesArray[index] = new Array();
 		});
 	});
@@ -109,64 +113,9 @@ function load_src(url) {
 }
 
 function plotAllSatellites(values) {
-	var satNo = new Array();
-	for (var i = 0; i < 5; i++) {
-		satNo[i] = 0;
-	}
-	trackCoordinates = new Array();
-	values.forEach(function(ele, index, array) {
-		if (ele.SatObservation.SatelliteNumber == 37158) {
-			// QZSS
-			trackCoordinatesArray[0][satNo[0]] = new google.maps.LatLng(
-					ele.SatObservation.Sensor.SensorLocation.Latitude,
-					ele.SatObservation.Sensor.SensorLocation.Longitude);
-			satNo[0]++;
-		} else if (ele.SatObservation.SatelliteNumber == 37846) {
-			// Galileo
-			trackCoordinatesArray[1][satNo[1]] = new google.maps.LatLng(
-					ele.SatObservation.Sensor.SensorLocation.Latitude,
-					ele.SatObservation.Sensor.SensorLocation.Longitude);
-			satNo[1]++;
-		} else if (ele.SatObservation.SatelliteNumber == 37847) {
-			// Galileo
-			trackCoordinatesArray[2][satNo[2]] = new google.maps.LatLng(
-					ele.SatObservation.Sensor.SensorLocation.Latitude,
-					ele.SatObservation.Sensor.SensorLocation.Longitude);
-			satNo[2]++;
-		} else if (ele.SatObservation.SatelliteNumber == 38857) {
-			// Galileo
-			trackCoordinatesArray[3][satNo[3]] = new google.maps.LatLng(
-					ele.SatObservation.Sensor.SensorLocation.Latitude,
-					ele.SatObservation.Sensor.SensorLocation.Longitude);
-			satNo[3]++;
-		} else if (ele.SatObservation.SatelliteNumber == 38858) {
-			// Galileo
-			trackCoordinatesArray[4][satNo[4]] = new google.maps.LatLng(
-					ele.SatObservation.Sensor.SensorLocation.Latitude,
-					ele.SatObservation.Sensor.SensorLocation.Longitude);
-			satNo[4]++;
-		}
-	});
-	trackCoordinatesArray.forEach(function(ele, index, array) {
-		trackLineArray[index] = new google.maps.Polyline({
-			path : trackCoordinatesArray[index],
-			strokeColor : '#FF4040',
-			strokeOpacity : 1.0,
-			strokeWeight : 2
-		});
-		trackLineArray[index].setMap(map);
-		valueCircleArray[index] = new google.maps.Circle({
-			strokeColor : colorString(),
-			strokeOpacity : 0.8,
-			strokeWeight : 2,
-			fillColor : colorString(),
-			fillOpacity : 0.35,
-			map : map,
-			center : trackCoordinatesArray[index][0],
-			radius : radius
-		});
 
-	});
+	roadSatDB(values);
+
 }
 
 function colorString(value) {
@@ -181,6 +130,74 @@ function addInfowindow(text, latLng) {
 		position : latLng
 	});
 	infowindow.open(map);
+}
+
+/**
+ * class for satellite.
+ */
+function Satellite(_catNo, _rnxStr, _imgStr, _description) {
+	this.catNo = _catNo;
+	this.rnxStr = _rnxStr;
+	this.imgStr = _imgStr;
+	this.description = _description;
+}
+
+function roadSatDB(values) {
+
+	var httpReq = new XMLHttpRequest();
+	httpReq.onreadystatechange = function callback_inRoadSatDB() {
+		var lines = new Array();
+		if (httpReq.readyState == 4 && httpReq.status == 200) {
+			lines = httpReq.responseText.split("\n", 50);
+			ele_line = new Array();
+			lines.forEach(function(ele, index, array) {
+				ele_line = ele.split("\t", 5);
+				satArray[index] = new Satellite(ele_line[0], ele_line[1],
+						ele_line[2], ele_line[3]);
+			});
+			createAndDrawTrackCoordinateArray(values);
+		}
+	};
+	httpReq
+			.open(
+					"GET",
+					'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt',
+					true);
+	httpReq.send(null);
+}
+
+function createAndDrawTrackCoordinateArray(values) {
+	values
+			.forEach(function(ele_val, index_val, array_val) {
+				satArray
+						.some(function(ele_sat, index_sat, array_sat) {
+							if (ele_val.SatObservation.SatelliteNumber == ele_sat.catNo) {
+								trackCoordinatesArray[index_sat][satNo[index_sat]] = new google.maps.LatLng(
+										ele_val.SatObservation.Sensor.SensorLocation.Latitude,
+										ele_val.SatObservation.Sensor.SensorLocation.Longitude);
+								satNo[index_sat]++;
+								return;
+							}
+						});
+			});
+	trackCoordinatesArray.forEach(function(ele, index, array) {
+		trackLineArray[index] = new google.maps.Polyline({
+			path : trackCoordinatesArray[index],
+			strokeColor : '#FF4040',
+			strokeOpacity : 1.0,
+			strokeWeight : 2
+		});
+		trackLineArray[index].setMap(map);
+		var image = new google.maps.MarkerImage('res/drawable/ic_star.png',
+				new google.maps.Size(40, 40), new google.maps.Point(0, 0),
+				new google.maps.Point(10, 10),new google.maps.Size(20, 20));
+		markerArray[index] = new google.maps.Marker({
+			position : trackCoordinatesArray[index][0],
+			map : map,
+			icon : image
+		});
+
+	});
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
