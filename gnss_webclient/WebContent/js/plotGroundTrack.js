@@ -11,11 +11,35 @@
 var map;
 var gnssString = "JE";
 var url_DateTime = "2014-03-01_00:00:00";
-var trackLineArray = new Array();
-var trackCoordinatesArray = new Array();
 var update_timeout = null;
+
+/*
+ * two dimensional array the number of trackCoordinatesArray[] is the number of
+ * satellite the number of trackCoordinatesArray[][] is the number of the data
+ * of each satellite.
+ */
+var trackCoordinatesArray = new Array();
+
+/*
+ * trackLine is PolyLine of each satellite. the number of this trackLineArray is
+ * the number of satellite.
+ */
+var trackLineArray = new Array();
+
+/*
+ * this array is Marker including satellite image. so the number of this array
+ * is the number of satellite.
+ */
 var markerArray = new Array();
+
+/*
+ * this array is data from satellite database from text file 
+ */
 var satArray = new Array();
+
+/*
+ * this array is the number of data of each satellite get from web api
+ */
 var satNo = new Array();
 for (var i = 0; i < 5; i++) {
 	satNo[i] = 0;
@@ -98,6 +122,9 @@ function initialize() {
 			markerArray[index].setMap(null);
 			trackCoordinatesArray[index] = new Array();
 		});
+		for (var i = 0; i < 5; i++) {
+			satNo[i] = 0;
+		}
 	});
 
 }
@@ -158,26 +185,18 @@ function roadSatDB(values) {
 			createAndDrawTrackCoordinateArray(values);
 		}
 	};
-	//var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
-	var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
+	var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
+	// var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }
 
+/**
+ * 
+ * @param values
+ */
 function createAndDrawTrackCoordinateArray(values) {
-	values
-			.forEach(function(ele_val, index_val, array_val) {
-				satArray
-						.some(function(ele_sat, index_sat, array_sat) {
-							if (ele_val.SatObservation.SatelliteNumber == ele_sat.catNo) {
-								trackCoordinatesArray[index_sat][satNo[index_sat]] = new google.maps.LatLng(
-										ele_val.SatObservation.Sensor.SensorLocation.Latitude,
-										ele_val.SatObservation.Sensor.SensorLocation.Longitude);
-								satNo[index_sat]++;
-								return;
-							}
-						});
-			});
+	values.forEach(createTrackCoordinateArray);
 	trackCoordinatesArray.forEach(function(ele, index, array) {
 		trackLineArray[index] = new google.maps.Polyline({
 			path : trackCoordinatesArray[index],
@@ -208,6 +227,24 @@ function createAndDrawTrackCoordinateArray(values) {
 			icon : image
 		});
 
+	});
+}
+
+/**
+ * 
+ * @param e
+ *            element of values
+ * @param index_val
+ */
+function createTrackCoordinateArray(e, index_val) {
+	satArray.some(function(ele_sat, i) {
+		if (e.SatObservation.SatelliteNumber == ele_sat.catNo) {
+			trackCoordinatesArray[i][satNo[i]] = new google.maps.LatLng(
+					e.SatObservation.Sensor.SensorLocation.Latitude,
+					e.SatObservation.Sensor.SensorLocation.Longitude);
+			satNo[i]++;
+			return;
+		}
 	});
 }
 
