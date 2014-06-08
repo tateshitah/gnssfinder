@@ -33,7 +33,7 @@ var trackLineArray = new Array();
 var markerArray = new Array();
 
 /*
- * this array is data from satellite database from text file 
+ * this array is data from satellite database from text file
  */
 var satArray = new Array();
 
@@ -61,9 +61,8 @@ function initialize() {
 	map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 
 	/* Initializing track coordinates array */
-	for (var i = 0; i < 5; i++) {
-		trackCoordinatesArray[i] = new Array();
-	}
+
+	roadSatellite();
 
 	/* Setting Current date and time */
 	var currentDateTime = new Date();
@@ -96,6 +95,9 @@ function initialize() {
 
 	/* Event when click */
 	google.maps.event.addListener(map, 'click', function(event) {
+		for (var i = 0; i < satArray.length; i++) {
+			satNo[i] = 0;
+		}
 		update_timeout = setTimeout(function() {
 			// alert("here click event");
 			var url_Date_temp = $('#datepicker').val();
@@ -122,7 +124,7 @@ function initialize() {
 			markerArray[index].setMap(null);
 			trackCoordinatesArray[index] = new Array();
 		});
-		for (var i = 0; i < 5; i++) {
+		for (var i = 0; i < satArray.length; i++) {
 			satNo[i] = 0;
 		}
 	});
@@ -130,19 +132,14 @@ function initialize() {
 }
 
 window.callback = function(data) {
-	plotAllSatellites(data.values);
+	// plotAllSatellites(data.values);
+	createAndDrawTrackCoordinateArray(data.values);
 };
 
 function load_src(url) {
 	var script = document.createElement('script');
 	script.src = url;
 	document.body.appendChild(script);
-}
-
-function plotAllSatellites(values) {
-
-	roadSatDB(values);
-
 }
 
 function colorString(value) {
@@ -169,12 +166,16 @@ function Satellite(_catNo, _rnxStr, _imgStr, _description) {
 	this.description = _description;
 }
 
-function roadSatDB(values) {
+/**
+ * road satellite data from text file. output is array of Satellite objects.
+ */
+function roadSatellite() {
 
 	var httpReq = new XMLHttpRequest();
 	httpReq.onreadystatechange = function callback_inRoadSatDB() {
 		var lines = new Array();
 		if (httpReq.readyState == 4 && httpReq.status == 200) {
+			// road database
 			lines = httpReq.responseText.split("\n", 50);
 			ele_line = new Array();
 			lines.forEach(function(ele, index, array) {
@@ -182,7 +183,9 @@ function roadSatDB(values) {
 				satArray[index] = new Satellite(ele_line[0], ele_line[1],
 						ele_line[2], ele_line[3]);
 			});
-			createAndDrawTrackCoordinateArray(values);
+			for (var i = 0; i < satArray.length; i++) {
+				trackCoordinatesArray[i] = new Array();
+			}
 		}
 	};
 	var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
