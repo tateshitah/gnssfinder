@@ -444,7 +444,8 @@ public class SpaceTrackWorker {
 
 	private String[] getNoradCatalogID(String gnssStr) {
 		String qzss = spaceTrackProperties.getProperty("QZSS");
-		String gps = spaceTrackProperties.getProperty("GPS");
+		String gps = spaceTrackProperties.getProperty("GPS") + ","
+				+ spaceTrackProperties.getProperty("GPS-Block-IIF");
 		String galileo = spaceTrackProperties.getProperty("GAL");
 		String noradCatNumStr = "";
 		if (gnssStr.contains("G") && gps != null) {
