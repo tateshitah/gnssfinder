@@ -223,11 +223,23 @@ function createAndDrawTrackCoordinateArray(values) {
 					new google.maps.Point(0, 0),
 					new google.maps.Point(60, 22.5), new google.maps.Size(90,
 							45));
+		} else if (satArray[index].imgStr == "gpsBlockIIF") {
+			image = new google.maps.MarkerImage('res/drawable/IIF.gif',
+					new google.maps.Size(300, 160),
+					new google.maps.Point(0, 0),
+					new google.maps.Point(60, 22.5), new google.maps.Size(80,
+							40));
 		}
 		markerArray[index] = new google.maps.Marker({
 			position : trackCoordinatesArray[index][0],
 			map : map,
 			icon : image
+		});
+		google.maps.event.addListener(markerArray[index], 'click', function() {
+			new google.maps.InfoWindow({
+				content : satArray[index].description,
+				position: trackCoordinatesArray[index][0]
+			}).open(markerArray[index].getMap());
 		});
 
 	});
