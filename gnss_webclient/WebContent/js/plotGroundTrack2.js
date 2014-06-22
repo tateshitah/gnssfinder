@@ -93,42 +93,40 @@ function initialize() {
 	timeStr += currentDateTime.getUTCSeconds();
 	$('#timepicker').val(timeStr);
 
-	/* Event when click */
-	google.maps.event.addListener(map, 'click', function(event) {
-		for (var i = 0; i < satArray.length; i++) {
-			satNo[i] = 0;
-		}
-		update_timeout = setTimeout(function() {
-			// alert("here click event");
-			var url_Date_temp = $('#datepicker').val();
-			if (url_Date_temp != "") {
-				var url_Time_temp = $('#timepicker').val();
-				if (url_Time_temp != "") {
-					url_DateTime = url_Date_temp + "_" + url_Time_temp;
-				}
+	/*
+	 * Event when click */
+	google.maps.event.addListener(map, 'click',startPlot('J'));
+	 
+
+	/*
+	 * Event when double click google.maps.event.addListener(map, 'dblclick',
+	 * function(event) { clearTimeout(update_timeout); // alert("here double
+	 * click event"); trackCoordinatesArray.forEach(function(ele, index, array) {
+	 * trackLineArray[index].setMap(null); markerArray[index].setMap(null);
+	 * trackCoordinatesArray[index] = new Array(); }); for (var i = 0; i <
+	 * satArray.length; i++) { satNo[i] = 0; } });
+	 */
+
+}
+
+function startPlot(gnssString) {
+	for (var i = 0; i < satArray.length; i++) {
+		satNo[i] = 0;
+	}
+	update_timeout = setTimeout(function() {
+		// alert("here click event");
+		var url_Date_temp = $('#datepicker').val();
+		if (url_Date_temp != "") {
+			var url_Time_temp = $('#timepicker').val();
+			if (url_Time_temp != "") {
+				url_DateTime = url_Date_temp + "_" + url_Time_temp;
 			}
-			gnssString = $('#sel1').val();
-			var url = "http://braincopy.org/gnssws/groundTrack?" + "dateTime="
-					+ url_DateTime + "&gnss=" + gnssString
-					+ "&format=jsonp&term=86400&step=900";
-			load_src(url);
-		}, 200);
-	});
-
-	/* Event when double click */
-	google.maps.event.addListener(map, 'dblclick', function(event) {
-		clearTimeout(update_timeout);
-		// alert("here double click event");
-		trackCoordinatesArray.forEach(function(ele, index, array) {
-			trackLineArray[index].setMap(null);
-			markerArray[index].setMap(null);
-			trackCoordinatesArray[index] = new Array();
-		});
-		for (var i = 0; i < satArray.length; i++) {
-			satNo[i] = 0;
 		}
-	});
-
+		var url = "http://braincopy.org/gnssws/groundTrack?" + "dateTime="
+				+ url_DateTime + "&gnss=" + gnssString
+				+ "&format=jsonp&term=86400&step=900";
+		load_src(url);
+	}, 200);
 }
 
 window.callback = function(data) {
@@ -188,8 +186,9 @@ function roadSatellite() {
 			}
 		}
 	};
-	//var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
-	var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
+	 var url =
+	 'http://192.168.1.13:8080/gnss_webclient/assets/satelliteDataBase.txt';
+	//var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }
@@ -238,7 +237,7 @@ function createAndDrawTrackCoordinateArray(values) {
 		google.maps.event.addListener(markerArray[index], 'click', function() {
 			new google.maps.InfoWindow({
 				content : satArray[index].description,
-				position: trackCoordinatesArray[index][0]
+				position : trackCoordinatesArray[index][0]
 			}).open(markerArray[index].getMap());
 		});
 

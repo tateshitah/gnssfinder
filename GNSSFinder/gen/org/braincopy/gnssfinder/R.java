@@ -1080,21 +1080,22 @@ containing a value of this type.
         public static final int camera=0x7f020057;
         public static final int galileo=0x7f020058;
         public static final int ic_action_navigation_back=0x7f020059;
-        public static final int ic_launcher=0x7f02005a;
-        public static final int map=0x7f02005b;
-        public static final int qzss=0x7f02005c;
-        public static final int title=0x7f02005d;
+        public static final int ic_action_settings=0x7f02005a;
+        public static final int ic_launcher=0x7f02005b;
+        public static final int map=0x7f02005c;
+        public static final int qzss=0x7f02005d;
+        public static final int title=0x7f02005e;
     }
     public static final class id {
         public static final int action_bar=0x7f05001c;
         public static final int action_bar_activity_content=0x7f050015;
-        public static final int action_bar_back=0x7f050042;
+        public static final int action_bar_back=0x7f050049;
         public static final int action_bar_container=0x7f05001b;
         public static final int action_bar_overlay_layout=0x7f05001f;
         public static final int action_bar_root=0x7f05001a;
         public static final int action_bar_subtitle=0x7f050023;
         public static final int action_bar_title=0x7f050022;
-        public static final int action_close=0x7f050043;
+        public static final int action_close=0x7f05004a;
         public static final int action_context_bar=0x7f05001d;
         public static final int action_menu_divider=0x7f050016;
         public static final int action_menu_presenter=0x7f050017;
@@ -1103,6 +1104,7 @@ containing a value of this type.
         public static final int always=0x7f05000b;
         public static final int beginning=0x7f050011;
         public static final int cameraPreview=0x7f05003d;
+        public static final int cancelButton=0x7f050048;
         public static final int checkbox=0x7f05002d;
         public static final int collapseActionView=0x7f05000d;
         public static final int container=0x7f05003c;
@@ -1114,6 +1116,9 @@ containing a value of this type.
         public static final int end=0x7f050013;
         public static final int expand_activities_button=0x7f050026;
         public static final int expanded_menu=0x7f05002c;
+        public static final int galileoCheckBox=0x7f050045;
+        public static final int gnssSelectionTextView=0x7f050043;
+        public static final int gpsBlockIIFcheckBox=0x7f050044;
         public static final int home=0x7f050014;
         public static final int homeAsUp=0x7f050005;
         public static final int icon=0x7f05002a;
@@ -1128,8 +1133,10 @@ containing a value of this type.
         public static final int never=0x7f050009;
         public static final int none=0x7f050010;
         public static final int normal=0x7f050000;
+        public static final int okButton=0x7f050047;
         public static final int progress_circular=0x7f050018;
         public static final int progress_horizontal=0x7f050019;
+        public static final int qzssCheckBox=0x7f050046;
         public static final int radio=0x7f05002f;
         public static final int search_badge=0x7f050032;
         public static final int search_bar=0x7f050031;
@@ -1141,6 +1148,7 @@ containing a value of this type.
         public static final int search_plate=0x7f050036;
         public static final int search_src_text=0x7f050037;
         public static final int search_voice_btn=0x7f05003b;
+        public static final int settingImageButton1=0x7f050041;
         public static final int shortcut=0x7f05002e;
         public static final int showCustom=0x7f050007;
         public static final int showHome=0x7f050004;
@@ -1152,7 +1160,7 @@ containing a value of this type.
         public static final int top_action_bar=0x7f050020;
         public static final int up=0x7f050021;
         public static final int useLogo=0x7f050003;
-        public static final int webview=0x7f050041;
+        public static final int webview=0x7f050042;
         public static final int withText=0x7f05000c;
     }
     public static final class integer {
@@ -1209,7 +1217,8 @@ containing a value of this type.
         public static final int fragment_camera=0x7f030019;
         public static final int fragment_main=0x7f03001a;
         public static final int fragment_map=0x7f03001b;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001c;
+        public static final int fragment_settings=0x7f03001c;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001d;
     }
     public static final class menu {
         public static final int main=0x7f0c0000;
@@ -1258,7 +1267,14 @@ containing a value of this type.
         public static final int actionbar_backhome=0x7f0a0010;
         public static final int app_name=0x7f0a000d;
         public static final int camera_image_description=0x7f0a000f;
+        public static final int cancel_button=0x7f0a0018;
+        public static final int gnss_selection_label=0x7f0a0013;
+        public static final int label_galileo_checkbox=0x7f0a0015;
+        public static final int label_gps_blockIIF_checkbox=0x7f0a0014;
+        public static final int label_qzss_checkbox=0x7f0a0016;
         public static final int menu_close=0x7f0a0011;
+        public static final int ok_button=0x7f0a0017;
+        public static final int setting_button_description=0x7f0a0012;
         public static final int title_description=0x7f0a000e;
     }
     public static final class style {

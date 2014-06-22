@@ -33,7 +33,7 @@ public class MainFragment extends Fragment {
 			}
 		});
 		/*
-		 * Setting for camera button.
+		 * Setting for map button.
 		 */
 		ImageButton mapButton = (ImageButton) rootView
 				.findViewById(R.id.imageMapButton);
@@ -46,6 +46,23 @@ public class MainFragment extends Fragment {
 						.beginTransaction();
 				transaction.addToBackStack(null);
 				transaction.replace(R.id.container, mapFragment);
+				transaction.commit();
+			}
+		});
+		/*
+		 * Setting for setting button.
+		 */
+		ImageButton settingButton = (ImageButton) rootView
+				.findViewById(R.id.settingImageButton1);
+		settingButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SettingFragment settingFragment = new SettingFragment();
+				// View view = getActivity().findViewById(R.id.container);
+				FragmentTransaction transaction = getFragmentManager()
+						.beginTransaction();
+				transaction.addToBackStack(null);
+				transaction.replace(R.id.container, settingFragment);
 				transaction.commit();
 			}
 		});

@@ -6,5 +6,12 @@
     <string name="camera_image_description">this image is camera button</string>
     <string name="actionbar_backhome">home</string>
     <string name="menu_close">Close</string>
+    <string name="setting_button_description">image setting button</string>
+    <string name="gnss_selection_label">GNSS Selection</string>
+    <string name="label_gps_blockIIF_checkbox">GPS Block IIF</string>
+    <string name="label_galileo_checkbox">Galileo</string>
+    <string name="label_qzss_checkbox">QZSS</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Cancel</string>
 
 </resources>
