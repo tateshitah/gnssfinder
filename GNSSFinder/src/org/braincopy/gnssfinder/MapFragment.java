@@ -1,11 +1,11 @@
 package org.braincopy.gnssfinder;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
@@ -18,24 +18,52 @@ import android.webkit.WebView;
  */
 @SuppressLint("SetJavaScriptEnabled")
 public class MapFragment extends Fragment {
+	/**
+	 * a kind of hashtable for saving setting information.
+	 */
+	private SharedPreferences pref;
+
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		final View rootView = inflater.inflate(R.layout.fragment_map,
 				container, false);
+
+		/*
+		 * initialize setting by loading setting information from shared
+		 * preference.
+		 */
+		pref = getActivity().getSharedPreferences("gnssfinder",
+				Activity.MODE_PRIVATE);
+		boolean isGpsBlockIIF = pref.getBoolean("gpsBlockIIF", true);
+		boolean isGalileo = pref.getBoolean("galileo", false);
+		boolean isQzss = pref.getBoolean("qzss", false);
+		String gnssString = "";
+		if (isGpsBlockIIF) {
+			gnssString += "G";
+		}
+		if (isGalileo) {
+			gnssString += "E";
+		}
+		if (isQzss) {
+			gnssString += "J";
+		}
+		final String finalGnssString = gnssString;
 		WebView webView = (WebView) rootView.findViewById(R.id.webview);
 		WebSettings webSettings = webView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
-		webView.setOnTouchListener(new View.OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				Log.i("hiro", "hello");
-				((WebView) v).loadUrl("javascript:startPlot('J')");
-				return false;
-			}
-		});
-		// webView.loadUrl("http://192.168.1.13:8080/gnss_webclient/sample05.html");
-		webView.loadUrl("http://braincopy.org/WebContent/sample04.html");
+		/*
+		 * webView.setOnTouchListener(new View.OnTouchListener() {
+		 * 
+		 * @Override public boolean onTouch(View v, MotionEvent event) {
+		 * Log.i("hiro", "hello: " + finalGnssString); ((WebView)
+		 * v).loadUrl("javascript:startPlot('" + finalGnssString + "')"); return
+		 * false; } });
+		 */
+		webView.clearCache(true);
+		webView.loadUrl("http://192.168.1.13:8080/gnss_webclient/sample05.html?gnss="
+				+ finalGnssString);
+		// webView.loadUrl("http://braincopy.org/WebContent/sample04.html");
+		// webView.loadUrl("file:///android_asset/jstest.html");
 		return rootView;
 	}
 }

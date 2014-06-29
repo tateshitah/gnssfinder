@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Switch;
 
 /**
  * Setting page of this application has following functions:
@@ -46,16 +47,25 @@ public class SettingFragment extends Fragment {
 		final CheckBox gpsBlockIIFCheckBox = (CheckBox) rootView
 				.findViewById(R.id.gpsBlockIIFcheckBox);
 		gpsBlockIIFCheckBox.setChecked(isGpsBlockIIF);
+		final Switch gpsBlockIIFSwitch = (Switch) rootView
+				.findViewById(R.id.gpsBlockIIFSwitch);
+		gpsBlockIIFSwitch.setChecked(isGpsBlockIIF);
 
 		boolean isGalileo = pref.getBoolean("galileo", false);
 		final CheckBox galileoCheckBox = (CheckBox) rootView
 				.findViewById(R.id.galileoCheckBox);
 		galileoCheckBox.setChecked(isGalileo);
+		final Switch galileoSwitch = (Switch) rootView
+				.findViewById(R.id.galileoSwitch);
+		galileoSwitch.setChecked(isGalileo);
 
 		boolean isQzss = pref.getBoolean("qzss", false);
 		final CheckBox qzssCheckBox = (CheckBox) rootView
 				.findViewById(R.id.qzssCheckBox);
 		qzssCheckBox.setChecked(isQzss);
+		final Switch qzssSwitch = (Switch) rootView
+				.findViewById(R.id.qzssSwitch);
+		qzssSwitch.setChecked(isQzss);
 
 		/*
 		 * OK button

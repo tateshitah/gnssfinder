@@ -16,6 +16,27 @@
         android:text="@string/gnss_selection_label"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <Switch
+        android:id="@+id/gpsBlockIIFSwitch"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="@string/label_gps_blockIIF_checkbox" />
+
+    <Switch
+        android:id="@+id/galileoSwitch"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="@string/label_galileo_checkbox" />
+
+    <Switch
+        android:id="@+id/qzssSwitch"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:text="@string/label_qzss_checkbox" />
+
     <CheckBox
         android:id="@+id/gpsBlockIIFcheckBox"
         android:layout_width="wrap_content"
