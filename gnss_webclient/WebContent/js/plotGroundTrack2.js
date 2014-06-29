@@ -41,7 +41,7 @@ var satArray = new Array();
  * this array is the number of data of each satellite get from web api
  */
 var satNo = new Array();
-for (var i = 0; i < 5; i++) {
+for (var i = 0; i < 20; i++) {
 	satNo[i] = 0;
 }
 
@@ -93,10 +93,15 @@ function initialize() {
 	timeStr += currentDateTime.getUTCSeconds();
 	$('#timepicker').val(timeStr);
 
+	var url = location.href;
+	params = url.split("?");
+	paramms = params[1].split("=");
+	startPlot(paramms[1]);
+	
 	/*
-	 * Event when click */
-	google.maps.event.addListener(map, 'click',startPlot('J'));
-	 
+	 * Event when click
+	 */
+	//google.maps.event.addListener(map, 'click', startPlot('J'));
 
 	/*
 	 * Event when double click google.maps.event.addListener(map, 'dblclick',
@@ -186,9 +191,8 @@ function roadSatellite() {
 			}
 		}
 	};
-	 var url =
-	 'http://192.168.1.13:8080/gnss_webclient/assets/satelliteDataBase.txt';
-	//var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
+	var url = 'http://192.168.1.13:8080/gnss_webclient/assets/satelliteDataBase.txt';
+	// var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }
