@@ -1,6 +1,5 @@
 package org.braincopy.gnssfinder;
 
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,6 +35,7 @@ public class SatelliteInfoWorker extends Thread {
 	private Date currentDate;
 	private Satellite[] satArray;
 	private int status = SatelliteInfoWorker.INITIAL_STATUS;
+	private String gnssString;
 	static final int INITIAL_STATUS = 0;
 	static final int CONNECTING = 1;
 	static final int CONNECTED = 2;
@@ -99,7 +99,7 @@ public class SatelliteInfoWorker extends Thread {
 		builder.appendQueryParameter("dateTime", sdf.format(currentDate));
 		builder.appendQueryParameter("lat", Float.toString(lat));
 		builder.appendQueryParameter("lon", Float.toString(lon));
-		builder.appendQueryParameter("gnss", "EJ");
+		builder.appendQueryParameter("gnss", gnssString);
 
 		HttpUriRequest getRequest = new HttpGet(builder.build().toString());
 
@@ -173,5 +173,10 @@ public class SatelliteInfoWorker extends Thread {
 
 	public void setStatus(int _status) {
 		this.status = _status;
+	}
+
+	public void setGnssString(String gnssString_) {
+		this.gnssString = gnssString_;
+
 	}
 }

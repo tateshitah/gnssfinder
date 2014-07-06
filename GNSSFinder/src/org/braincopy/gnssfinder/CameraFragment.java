@@ -107,7 +107,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 
 		lat = (float) 35.660994;
 		lon = (float) 139.677619;
-
+		final String gnssString = SettingFragment.getGNSSString(getActivity());
 		ConnectivityManager cm = (ConnectivityManager) getActivity()
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -115,6 +115,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 			worker = new SatelliteInfoWorker();
 			worker.setLatLon(lat, lon);
 			worker.setCurrentDate(new Date(System.currentTimeMillis()));
+			worker.setGnssString(gnssString);
 			worker.start();
 			worker.setStatus(SatelliteInfoWorker.CONNECTED);
 			arView.setStatus("connected");
@@ -214,6 +215,10 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private boolean loadImages() {
 		boolean result = false;
 		Resources resources = this.getResources();
@@ -231,16 +236,22 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 				String gnssStr = "";
 				for (int i = 0; i < satellites.length; i++) {
 					gnssStr = getGnssStr(satellites[i].getCatNo(), datalist);
-					satellites[i].setDescription(getSatInfo(
-							satellites[i].getCatNo(), datalist));
-					if (gnssStr.equals("qzss")) {
-						satellites[i].setImage(BitmapFactory.decodeResource(
-								resources, R.drawable.qzss));
-					} else if (gnssStr.equals("galileo")) {
-						satellites[i].setImage(BitmapFactory.decodeResource(
-								resources, R.drawable.galileo));
+					if (gnssStr != null) {
+						satellites[i].setDescription(getSatInfo(
+								satellites[i].getCatNo(), datalist));
+						if (gnssStr.equals("qzss")) {
+							satellites[i]
+									.setImage(BitmapFactory.decodeResource(
+											resources, R.drawable.qzss));
+						} else if (gnssStr.equals("galileo")) {
+							satellites[i].setImage(BitmapFactory
+									.decodeResource(resources,
+											R.drawable.galileo));
+						} else if (gnssStr.equals("gpsBlockIIF")) {
+							satellites[i].setImage(BitmapFactory
+									.decodeResource(resources, R.drawable.iif));
+						}
 					}
-
 				}
 				result = true;
 			} catch (IOException e) {

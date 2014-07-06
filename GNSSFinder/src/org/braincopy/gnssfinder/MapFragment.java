@@ -51,18 +51,12 @@ public class MapFragment extends Fragment {
 		WebView webView = (WebView) rootView.findViewById(R.id.webview);
 		WebSettings webSettings = webView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
-		/*
-		 * webView.setOnTouchListener(new View.OnTouchListener() {
-		 * 
-		 * @Override public boolean onTouch(View v, MotionEvent event) {
-		 * Log.i("hiro", "hello: " + finalGnssString); ((WebView)
-		 * v).loadUrl("javascript:startPlot('" + finalGnssString + "')"); return
-		 * false; } });
-		 */
+
 		webView.clearCache(true);
-		webView.loadUrl("http://192.168.1.13:8080/gnss_webclient/sample05.html?gnss="
+		// webView.loadUrl("http://192.168.1.13:8080/gnss_webclient/sample05.html?gnss="
+		// + finalGnssString);
+		webView.loadUrl("http://braincopy.org/WebContent/sample05.html?gnss="
 				+ finalGnssString);
-		// webView.loadUrl("http://braincopy.org/WebContent/sample04.html");
 		// webView.loadUrl("file:///android_asset/jstest.html");
 		return rootView;
 	}

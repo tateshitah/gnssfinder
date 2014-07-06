@@ -100,34 +100,36 @@ public class ARView extends View {
 		matrix.postScale(scale, scale);
 		if (this.satellites != null) {
 			for (int i = 0; i < satellites.length; i++) {
-				if (direction - satellites[i].getAzimuth() < -270) {
-					dx = (float) (canvas.getWidth() * (0.5 - (direction
-							- satellites[i].getAzimuth() + 360)
-							/ (hVeiwAngle * 0.5) * 0.5));
-					dy = (float) (canvas.getHeight() * (0.5 + (pitch - satellites[i]
-							.getElevation()) / (vVeiwAngle * 0.5) * 0.5));
-				} else if (direction - satellites[i].getAzimuth() > 270) {
-					dx = (float) (canvas.getWidth() * (0.5 - (direction
-							- satellites[i].getAzimuth() - 360)
-							/ (hVeiwAngle * 0.5) * 0.5));
-					dy = (float) (canvas.getHeight() * (0.5 + (pitch - satellites[i]
-							.getElevation()) / (vVeiwAngle * 0.5) * 0.5));
-				} else {
-					dx = (float) (canvas.getWidth() * (0.5 - (direction - satellites[i]
-							.getAzimuth()) / (hVeiwAngle * 0.5) * 0.5));
-					dy = (float) (canvas.getHeight() * (0.5 + (pitch - satellites[i]
-							.getElevation()) / (vVeiwAngle * 0.5) * 0.5));
+				if (satellites[i].getImage() != null) {
+					if (direction - satellites[i].getAzimuth() < -270) {
+						dx = (float) (canvas.getWidth() * (0.5 - (direction
+								- satellites[i].getAzimuth() + 360)
+								/ (hVeiwAngle * 0.5) * 0.5));
+						dy = (float) (canvas.getHeight() * (0.5 + (pitch - satellites[i]
+								.getElevation()) / (vVeiwAngle * 0.5) * 0.5));
+					} else if (direction - satellites[i].getAzimuth() > 270) {
+						dx = (float) (canvas.getWidth() * (0.5 - (direction
+								- satellites[i].getAzimuth() - 360)
+								/ (hVeiwAngle * 0.5) * 0.5));
+						dy = (float) (canvas.getHeight() * (0.5 + (pitch - satellites[i]
+								.getElevation()) / (vVeiwAngle * 0.5) * 0.5));
+					} else {
+						dx = (float) (canvas.getWidth() * (0.5 - (direction - satellites[i]
+								.getAzimuth()) / (hVeiwAngle * 0.5) * 0.5));
+						dy = (float) (canvas.getHeight() * (0.5 + (pitch - satellites[i]
+								.getElevation()) / (vVeiwAngle * 0.5) * 0.5));
+					}
+					matrix.postTranslate(dx, dy);
+					/*
+					 * Log.e("test", "i, dir, az, el: " + i + ", " + direction +
+					 * ", " + satellites[i].getAzimuth() + ", " +
+					 * satellites[i].getElevation());
+					 */
+					canvas.drawBitmap(satellites[i].getImage(), matrix, paint);
+					canvas.drawText(satellites[i].getDescription(), dx + 30,
+							dy, paint);
+					matrix.postTranslate(-dx, -dy);
 				}
-				matrix.postTranslate(dx, dy);
-				/*
-				 * Log.e("test", "i, dir, az, el: " + i + ", " + direction +
-				 * ", " + satellites[i].getAzimuth() + ", " +
-				 * satellites[i].getElevation());
-				 */
-				canvas.drawBitmap(satellites[i].getImage(), matrix, paint);
-				canvas.drawText(satellites[i].getDescription(), dx + 30, dy,
-						paint);
-				matrix.postTranslate(-dx, -dy);
 			}
 		}
 	}
