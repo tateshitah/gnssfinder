@@ -41,9 +41,9 @@ var satArray = new Array();
  * this array is the number of data of each satellite get from web api
  */
 var satNo = new Array();
-for (var i = 0; i < 20; i++) {
-	satNo[i] = 0;
-}
+
+var isDrawn = false;
+
 
 function initialize() {
 
@@ -96,26 +96,51 @@ function initialize() {
 	var url = location.href;
 	params = url.split("?");
 	paramms = params[1].split("=");
-	startPlot(paramms[1]);
+	
+	/*
+	 * input check
+	 */
+	if(!paramms[1].match(/^[E-R]+$/)){
+		paramms[1]="J";
+		//alert("OK: "+paramms[1]);
+	}
+	
+	if(!isDrawn){
+		startPlot(paramms[1]);
+		isDrawn = true;
+	}
 	
 	/*
 	 * Event when click
 	 */
-	//google.maps.event.addListener(map, 'click', startPlot('J'));
+	google.maps.event.addListener(map, 'click', function(event) {
+		if(!isDrawn){
+			startPlot(paramms[1]);
+			isDrawn = true;
+		}
+	});
 
 	/*
-	 * Event when double click google.maps.event.addListener(map, 'dblclick',
-	 * function(event) { clearTimeout(update_timeout); // alert("here double
-	 * click event"); trackCoordinatesArray.forEach(function(ele, index, array) {
-	 * trackLineArray[index].setMap(null); markerArray[index].setMap(null);
-	 * trackCoordinatesArray[index] = new Array(); }); for (var i = 0; i <
-	 * satArray.length; i++) { satNo[i] = 0; } });
+	 * Event when double click
 	 */
+	google.maps.event.addListener(map, 'dblclick', function(event) {
+		clearTimeout(update_timeout);
+		// alert("here doubleclick event");
+		trackCoordinatesArray.forEach(function(ele, index, array) {
+			trackLineArray[index].setMap(null);
+			markerArray[index].setMap(null);
+			trackCoordinatesArray[index] = new Array();
+		});
+		for (var i = 0; i < satArray.length; i++) {
+			satNo[i] = 0;
+		}
+		isDrawn = false;
+	});
 
 }
 
 function startPlot(gnssString) {
-	for (var i = 0; i < satArray.length; i++) {
+	for (var i = 0; i < 20; i++) {
 		satNo[i] = 0;
 	}
 	update_timeout = setTimeout(function() {
@@ -191,7 +216,7 @@ function roadSatellite() {
 			}
 		}
 	};
-	var url = 'http://192.168.1.13:8080/gnss_webclient/assets/satelliteDataBase.txt';
+	var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
 	// var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
