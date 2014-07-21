@@ -1,6 +1,5 @@
 package org.braincopy.gnssfinder;
 
-
 import java.io.IOException;
 
 import android.content.Context;
@@ -69,9 +68,11 @@ public class CameraView extends SurfaceView implements Callback {
 	public void surfaceCreated(SurfaceHolder holder) {
 		try {
 			camera = getCameraInstanse();
-			camera.setDisplayOrientation(90);
-			camera.setPreviewDisplay(holder);
-			camera.startPreview();
+			if (camera != null) {
+				camera.setDisplayOrientation(90);
+				camera.setPreviewDisplay(holder);
+				camera.startPreview();
+			}
 		} catch (IOException e) {
 			Log.e("hiro", "io exception of camera " + e);
 			e.printStackTrace();
