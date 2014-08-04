@@ -185,6 +185,38 @@ public class ARView extends View {
 		invalidate();
 	}
 
+	/**
+	 * 
+	 * @param azimuth
+	 *            [degree]
+	 * @param elevation
+	 *            [degree]
+	 * @return
+	 */
+	protected float convertAzElX(float azimuth, float elevation) {
+		float result = (float) (0.5f * hVeiwAngle + 0.5f * hVeiwAngle
+				* (azimuth - direction) * Math.cos(roll / 180 * Math.PI) - 0.5f
+				* vVeiwAngle * (elevation - pitch)
+				* Math.sin(roll / 180 * Math.PI));
+		return result;
+	}
+
+	/**
+	 * 
+	 * @param azimuth
+	 *            [degree]
+	 * @param elevation
+	 *            [degree]
+	 * @return
+	 */
+	protected float convertAzElY(float azimuth, float elevation) {
+		float result = (float) (0.5f * vVeiwAngle + 0.5f * hVeiwAngle
+				* (azimuth - direction) * Math.sin(roll / 180 * Math.PI) + 0.5f
+				* vVeiwAngle * (elevation - pitch)
+				* Math.cos(roll / 180 * Math.PI));
+		return result;
+	}
+
 	public Satellite[] getSatellites() {
 		return satellites;
 	}
