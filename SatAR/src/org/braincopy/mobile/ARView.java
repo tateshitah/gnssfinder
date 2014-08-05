@@ -76,11 +76,17 @@ public class ARView extends View {
 		drawDirection(canvas, paint, height);
 		drawSatellites(canvas, paint);
 		drawStatus(canvas, paint);
+		drawTest(canvas, paint, 0, 30);
 
 	}
 
 	private void drawStatus(Canvas canvas, Paint paint2) {
 		canvas.drawText(this.statusString, 50, canvas.getHeight() - 50, paint);
+	}
+
+	private void drawTest(Canvas canvas, Paint paint, float az, float el) {
+		canvas.drawText("(" + az + "," + el + ")", convertAzElX(az, el),
+				convertAzElY(az, el), paint);
 	}
 
 	private void drawSatellites(Canvas canvas, Paint paint) {
