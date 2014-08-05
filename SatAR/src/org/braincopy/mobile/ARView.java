@@ -85,8 +85,10 @@ public class ARView extends View {
 	}
 
 	private void drawTest(Canvas canvas, Paint paint, float az, float el) {
-		canvas.drawText("(" + az + "," + el + ")", convertAzElX(az, el),
-				convertAzElY(az, el), paint);
+		canvas.drawText("(" + az + "," + el + ")",
+				convertAzElX(az, el, canvas.getWidth(), canvas.getHeight()),
+				convertAzElY(az, el, canvas.getWidth(), canvas.getHeight()),
+				paint);
 	}
 
 	private void drawSatellites(Canvas canvas, Paint paint) {
@@ -199,11 +201,12 @@ public class ARView extends View {
 	 *            [degree]
 	 * @return
 	 */
-	protected float convertAzElX(float azimuth, float elevation) {
-		float result = (float) (0.5f * hVeiwAngle + 0.5f * hVeiwAngle
-				* (azimuth - direction) * Math.cos(roll / 180 * Math.PI) - 0.5f
-				* vVeiwAngle * (elevation - pitch)
-				* Math.sin(roll / 180 * Math.PI));
+	protected float convertAzElX(float azimuth, float elevation, float width,
+			float height) {
+		float result = (float) (0.5f * width + 0.5f * width
+				* (azimuth - direction) * Math.cos(roll / 180 * Math.PI)
+				/ hVeiwAngle - 0.5f * height * (pitch - elevation)
+				* Math.sin(roll / 180 * Math.PI) / vVeiwAngle);
 		return result;
 	}
 
@@ -215,11 +218,12 @@ public class ARView extends View {
 	 *            [degree]
 	 * @return
 	 */
-	protected float convertAzElY(float azimuth, float elevation) {
-		float result = (float) (0.5f * vVeiwAngle + 0.5f * hVeiwAngle
-				* (azimuth - direction) * Math.sin(roll / 180 * Math.PI) + 0.5f
-				* vVeiwAngle * (elevation - pitch)
-				* Math.cos(roll / 180 * Math.PI));
+	protected float convertAzElY(float azimuth, float elevation, float width,
+			float height) {
+		float result = (float) (0.5f * height + 0.5f * width
+				* (azimuth - direction) * Math.sin(roll / 180 * Math.PI)
+				/ hVeiwAngle + 0.5f * height * (pitch - elevation)
+				* Math.cos(roll / 180 * Math.PI) / vVeiwAngle);
 		return result;
 	}
 
