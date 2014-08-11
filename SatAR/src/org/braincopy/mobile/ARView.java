@@ -13,6 +13,7 @@ import android.view.View;
  * 
  */
 public class ARView extends View {
+	private static final float DISTANCE = 1350f;
 	Paint paint;
 	float lat, lon;
 	int width = 0, height = 0;
@@ -37,14 +38,18 @@ public class ARView extends View {
 	/**
 	 * vertical view angle [degree]
 	 */
-	final float vVeiwAngle = 60.0f;
+	final float vVeiwAngle = 30.0f;
 
 	/**
 	 * horizontal view angle [degree]
 	 */
-	final float hVeiwAngle = 50.0f;
+	final float hVeiwAngle = 25.0f;
 
 	private String statusString = "connecting...";
+
+	private Plane screenPlane;
+	private Line line;
+	private Point point;
 
 	public ARView(Context context) {
 		super(context);
@@ -52,6 +57,7 @@ public class ARView extends View {
 		paint.setAntiAlias(true);
 		paint.setColor(Color.RED);
 		paint.setTextSize(20);
+		screenPlane = new Plane(0, 0, 0, 0);
 	}
 
 	@Override
@@ -83,7 +89,8 @@ public class ARView extends View {
 	}
 
 	private void drawStatus(Canvas canvas, Paint paint2) {
-		canvas.drawText(this.statusString, 50, canvas.getHeight() - 50, paint);
+		canvas.drawText(this.statusString + ": " + canvas.getWidth() + ", "
+				+ canvas.getHeight(), 50, canvas.getHeight() - 50, paint);
 	}
 
 	private void drawTest(Canvas canvas, Paint paint, float az, float el) {
@@ -208,6 +215,12 @@ public class ARView extends View {
 		lat = lat_;
 		lon = lon_;
 
+		screenPlane.setParam(
+				(float) (Math.cos(orientation[1]) * Math.sin(orientation[0])),
+				-(float) Math.sin(orientation[1]),
+				(float) (Math.cos(orientation[1]) * Math.cos(orientation[0])),
+				DISTANCE);
+
 		invalidate();
 	}
 
@@ -220,11 +233,19 @@ public class ARView extends View {
 	 * @return
 	 */
 	protected float convertAzElX(float azimuth, float elevation) {
-		float result = (float) (0.5f * width + 0.5f * width
-				* plusMinus180(azimuth - direction)
-				* Math.cos(roll / 180 * Math.PI) / (0.5f * hVeiwAngle) + 0.5f
-				* height * plusMinus180(pitch - elevation)
-				* Math.sin(roll / 180 * Math.PI) / (0.5f * vVeiwAngle));
+		double dx = 0, dy = 0;
+		float result = 0;
+		dx = 0.5f * width / Math.tan(hVeiwAngle / 180 * Math.PI)
+				* Math.tan(plusMinusPI(azimuth - direction));
+		dy = -0.5f * height / Math.tan(vVeiwAngle / 180 * Math.PI)
+				* Math.tan(plusMinusPI(elevation - pitch))
+				/ Math.cos(plusMinusPI(azimuth - direction));
+		/*
+		 * rotate by using roll.
+		 */
+		result = (float) (0.5f * width + dx * Math.cos(roll / 180 * Math.PI) + dy
+				* Math.sin(roll / 180 * Math.PI));
+
 		return result;
 	}
 
@@ -237,11 +258,43 @@ public class ARView extends View {
 	 * @return
 	 */
 	protected float convertAzElY(float azimuth, float elevation) {
-		float result = (float) (0.5f * height - 0.5f * width
-				* plusMinus180(azimuth - direction)
-				* Math.sin(roll / 180 * Math.PI) / (0.5f * hVeiwAngle) + 0.5f
-				* height * plusMinus180(pitch - elevation)
-				* Math.cos(roll / 180 * Math.PI) / (0.5f * vVeiwAngle));
+		double dx = 0, dy = 0;
+		float result = 0;
+		dx = 0.5f * width / Math.tan(hVeiwAngle / 180 * Math.PI)
+				* Math.tan(plusMinusPI(azimuth - direction));
+		dy = -0.5f * height / Math.tan(vVeiwAngle / 180 * Math.PI)
+				* Math.tan(plusMinusPI(elevation - pitch))
+				/ Math.cos(plusMinusPI(azimuth - direction));
+		/*
+		 * rotate by using roll.
+		 */
+		result = (float) (0.5f * height - dx * Math.sin(roll / 180 * Math.PI) + dy
+				* Math.cos(roll / 180 * Math.PI));
+
+		return result;
+	}
+
+	/**
+	 * 
+	 * @param azimuth
+	 *            [degree]
+	 * @param elevation
+	 *            [degree]
+	 * @return
+	 */
+	protected Vector convertAzElVector(float azimuth, float elevation) {
+		float ce = (float) Math.cos(elevation / 180 * Math.PI);
+		float se = (float) Math.sin(elevation / 180 * Math.PI);
+		float ca = (float) Math.cos(azimuth / 180 * Math.PI);
+		float sa = (float) Math.sin(azimuth / 180 * Math.PI);
+		line = new Line(ce * sa, -se, ce * ca);
+		point = this.screenPlane.getIntersection(line);
+		point.rotateX(pitch);
+		point.rotateY(direction);
+		point.rotateZ(roll);
+		Vector result = new Vector(0.5f * width + point.x, 0.5f * height
+				+ point.y);
+
 		return result;
 	}
 
@@ -251,13 +304,13 @@ public class ARView extends View {
 	 *            [degree]
 	 * @return
 	 */
-	private float plusMinus180(float in) {
+	private float plusMinusPI(float in) {
 		if (in < -180) {
 			in += 360;
 		} else if (in > 180) {
 			in -= 360;
 		}
-		return in;
+		return (float) (in * Math.PI / 180);
 	}
 
 	public Satellite[] getSatellites() {

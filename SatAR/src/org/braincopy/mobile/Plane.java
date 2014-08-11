@@ -11,6 +11,13 @@ public class Plane {
 		this.d = d_;
 	}
 
+	public void setParam(float a_, float b_, float c_, float d_) {
+		this.a = a_;
+		this.b = b_;
+		this.c = c_;
+		this.d = d_;
+	}
+
 	public Point getIntersection(Line line) {
 		float t = 0;
 
