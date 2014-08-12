@@ -76,12 +76,7 @@ public class ARView extends View {
 		// draw30Line(canvas, paint);
 		// draw60Line(canvas, paint);
 
-		/*
-		 * height = (float) (canvas.getHeight() * (0.5 + pitch / (vVeiwAngle *
-		 * 0.5) * 0.5)); startX = 0; stopX = canvas.getWidth(); startY = height;
-		 * stopY = height; canvas.drawLine(startX, startY, stopX, stopY, paint);
-		 */
-		// drawDirection(canvas, paint);
+		drawDirection(canvas, paint);
 		drawSatellites(canvas, paint);
 		drawStatus(canvas, paint);
 		drawTest(canvas, paint, 0, 30);
@@ -100,7 +95,9 @@ public class ARView extends View {
 
 	private void drawTest(Canvas canvas, Paint paint, float az, float el) {
 		Point point = convertAzElPoint(az, el);
-		canvas.drawText("(" + az + "," + el + ")", point.x, point.y, paint);
+		if (point != null) {
+			canvas.drawText("(" + az + "," + el + ")", point.x, point.y, paint);
+		}
 	}
 
 	private void drawSatellites(Canvas canvas, Paint paint) {
@@ -150,11 +147,13 @@ public class ARView extends View {
 	 */
 	private void drawHorizon(Canvas canvas, Paint paint) {
 		Point startPoint, stopPoint;
-		for (int i = 0; i < 4; i++) {
-			startPoint = convertAzElPoint(i * 90, 0);
-			stopPoint = convertAzElPoint((i + 1) * 90, 0);
-			canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x,
-					stopPoint.y, paint);
+		for (int i = 0; i < 8; i++) {
+			startPoint = convertAzElPoint(i * 45, 0);
+			stopPoint = convertAzElPoint((i + 1) * 45, 0);
+			if (startPoint != null && stopPoint != null) {
+				canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x,
+						stopPoint.y, paint);
+			}
 		}
 	}
 
@@ -184,33 +183,38 @@ public class ARView extends View {
 		Point startPoint, stopPoint;
 
 		// draw west
-		startPoint = convertAzElPoint(180, 0);
+		startPoint = convertAzElPoint(180, 60);
 		stopPoint = convertAzElPoint(180, 90);
-		canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x, stopPoint.y,
-				paint);
-		canvas.drawText("WEST", startPoint.x, startPoint.y, paint);
+		if (startPoint != null && stopPoint != null) {
+			canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x,
+					stopPoint.y, paint);
+			canvas.drawText("WEST", startPoint.x, startPoint.y, paint);
+		}
 
 		// draw south
-		startPoint = convertAzElPoint(90, 0);
+		startPoint = convertAzElPoint(90, 60);
 		stopPoint = convertAzElPoint(90, 90);
-		canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x, stopPoint.y,
-				paint);
-		canvas.drawText("SOUTH", startPoint.x, startPoint.y, paint);
-
+		if (startPoint != null && stopPoint != null) {
+			canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x,
+					stopPoint.y, paint);
+			canvas.drawText("SOUTH", startPoint.x, startPoint.y, paint);
+		}
 		// draw east
-		startPoint = convertAzElPoint(0, 0);
+		startPoint = convertAzElPoint(0, 60);
 		stopPoint = convertAzElPoint(0, 90);
-		canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x, stopPoint.y,
-				paint);
-		canvas.drawText("EAST", startPoint.x, startPoint.y, paint);
-
+		if (startPoint != null && stopPoint != null) {
+			canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x,
+					stopPoint.y, paint);
+			canvas.drawText("EAST", startPoint.x, startPoint.y, paint);
+		}
 		// draw north
-		startPoint = convertAzElPoint(270, 0);
+		startPoint = convertAzElPoint(270, 60);
 		stopPoint = convertAzElPoint(270, 90);
-		canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x, stopPoint.y,
-				paint);
-		canvas.drawText("NORTH", startPoint.x, startPoint.y, paint);
-
+		if (startPoint != null && stopPoint != null) {
+			canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x,
+					stopPoint.y, paint);
+			canvas.drawText("NORTH", startPoint.x, startPoint.y, paint);
+		}
 	}
 
 	public void drawScreen(float[] orientation, float lat_, float lon_) {
@@ -288,18 +292,20 @@ public class ARView extends View {
 	 * @return
 	 */
 	protected Point convertAzElPoint(float azimuth, float elevation) {
+		Point result = null;
 		float ce = (float) Math.cos(elevation / 180 * Math.PI);
 		float se = (float) Math.sin(elevation / 180 * Math.PI);
 		float ca = (float) Math.cos(azimuth / 180 * Math.PI);
 		float sa = (float) Math.sin(azimuth / 180 * Math.PI);
 		line = new Line(ce * sa, -se, ce * ca);
 		point = this.screenPlane.getIntersection(line);
-		point.rotateX(pitch);
-		point.rotateY(direction);
-		point.rotateZ(roll);
-		Point result = new Point(0.5f * width + point.x, 0.5f * height
-				+ point.y, 0);
-
+		if (point != null) {
+			point.rotateX(pitch);
+			point.rotateY(direction);
+			point.rotateZ(roll);
+			result = new Point(0.5f * width + point.x, 0.5f * height + point.y,
+					0);
+		}
 		return result;
 	}
 

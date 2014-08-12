@@ -18,11 +18,22 @@ public class Plane {
 		this.d = d_;
 	}
 
+	/**
+	 * 
+	 * @param line
+	 * @return intersection point . return null when no intersection.
+	 */
 	public Point getIntersection(Line line) {
-		float t = 0;
+		Point result = null;
 
-		t = this.d / (this.a * line.a + this.b * line.b + this.c * line.c);
-		Point result = new Point(line.a * t, line.b * t, line.c * t);
+		// if inner-product > 0, this plane and the line should cross.
+		if (this.a * line.a + this.b * line.b + this.c * line.c > 0.001) {
+
+			float t = 0;
+
+			t = this.d / (this.a * line.a + this.b * line.b + this.c * line.c);
+			result = new Point(line.a * t, line.b * t, line.c * t);
+		}
 
 		return result;
 	}
