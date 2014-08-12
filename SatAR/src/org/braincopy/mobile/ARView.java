@@ -73,29 +73,34 @@ public class ARView extends View {
 
 		// draw horizon
 		drawHorizon(canvas, paint);
-		draw30Line(canvas, paint);
-		draw60Line(canvas, paint);
+		// draw30Line(canvas, paint);
+		// draw60Line(canvas, paint);
 
 		/*
 		 * height = (float) (canvas.getHeight() * (0.5 + pitch / (vVeiwAngle *
 		 * 0.5) * 0.5)); startX = 0; stopX = canvas.getWidth(); startY = height;
 		 * stopY = height; canvas.drawLine(startX, startY, stopX, stopY, paint);
 		 */
-		drawDirection(canvas, paint);
+		// drawDirection(canvas, paint);
 		drawSatellites(canvas, paint);
 		drawStatus(canvas, paint);
 		drawTest(canvas, paint, 0, 30);
+		drawTest(canvas, paint, 0, 90);
+		drawTest(canvas, paint, 180, 90);
+		drawTest(canvas, paint, 0, 0);
+		drawTest(canvas, paint, 90, 0);
+		drawTest(canvas, paint, 180, 0);
+		drawTest(canvas, paint, 270, 0);
 
 	}
 
 	private void drawStatus(Canvas canvas, Paint paint2) {
-		canvas.drawText(this.statusString + ": " + canvas.getWidth() + ", "
-				+ canvas.getHeight(), 50, canvas.getHeight() - 50, paint);
+		canvas.drawText(this.statusString, 50, canvas.getHeight() - 50, paint);
 	}
 
 	private void drawTest(Canvas canvas, Paint paint, float az, float el) {
-		canvas.drawText("(" + az + "," + el + ")", convertAzElX(az, el),
-				convertAzElY(az, el), paint);
+		Point point = convertAzElPoint(az, el);
+		canvas.drawText("(" + az + "," + el + ")", point.x, point.y, paint);
 	}
 
 	private void drawSatellites(Canvas canvas, Paint paint) {
@@ -138,14 +143,18 @@ public class ARView extends View {
 		}
 	}
 
+	/**
+	 * 
+	 * @param canvas
+	 * @param paint
+	 */
 	private void drawHorizon(Canvas canvas, Paint paint) {
-		float startX, stopX, startY, stopY;
+		Point startPoint, stopPoint;
 		for (int i = 0; i < 4; i++) {
-			startX = convertAzElX(i * 90, 0);
-			startY = convertAzElY(i * 90, 0);
-			stopX = convertAzElX((i + 1) * 90, 0);
-			stopY = convertAzElY((i + 1) * 90, 0);
-			canvas.drawLine(startX, startY, stopX, stopY, paint);
+			startPoint = convertAzElPoint(i * 90, 0);
+			stopPoint = convertAzElPoint((i + 1) * 90, 0);
+			canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x,
+					stopPoint.y, paint);
 		}
 	}
 
@@ -172,39 +181,35 @@ public class ARView extends View {
 	}
 
 	private void drawDirection(Canvas canvas, Paint paint) {
-		float startX, stopX, startY, stopY;
+		Point startPoint, stopPoint;
 
 		// draw west
-		startX = convertAzElX(180, 0);
-		startY = convertAzElY(180, 0);
-		stopX = convertAzElX(180, 90);
-		stopY = convertAzElY(180, 90);
-		canvas.drawLine(startX, startY, stopX, stopY, paint);
-		canvas.drawText("W", startX, startY, paint);
+		startPoint = convertAzElPoint(180, 0);
+		stopPoint = convertAzElPoint(180, 90);
+		canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x, stopPoint.y,
+				paint);
+		canvas.drawText("WEST", startPoint.x, startPoint.y, paint);
 
 		// draw south
-		startX = convertAzElX(90, 0);
-		startY = convertAzElY(90, 0);
-		stopX = convertAzElX(90, 90);
-		stopY = convertAzElY(90, 90);
-		canvas.drawLine(startX, startY, stopX, stopY, paint);
-		canvas.drawText("S", startX, startY, paint);
+		startPoint = convertAzElPoint(90, 0);
+		stopPoint = convertAzElPoint(90, 90);
+		canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x, stopPoint.y,
+				paint);
+		canvas.drawText("SOUTH", startPoint.x, startPoint.y, paint);
 
 		// draw east
-		startX = convertAzElX(0, 0);
-		startY = convertAzElY(0, 0);
-		stopX = convertAzElX(0, 90);
-		stopY = convertAzElY(0, 90);
-		canvas.drawLine(startX, startY, stopX, stopY, paint);
-		canvas.drawText("E", startX, startY, paint);
+		startPoint = convertAzElPoint(0, 0);
+		stopPoint = convertAzElPoint(0, 90);
+		canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x, stopPoint.y,
+				paint);
+		canvas.drawText("EAST", startPoint.x, startPoint.y, paint);
 
 		// draw north
-		startX = convertAzElX(270, 0);
-		startY = convertAzElY(270, 0);
-		stopX = convertAzElX(270, 90);
-		stopY = convertAzElY(270, 90);
-		canvas.drawLine(startX, startY, stopX, stopY, paint);
-		canvas.drawText("N", startX, startY, paint);
+		startPoint = convertAzElPoint(270, 0);
+		stopPoint = convertAzElPoint(270, 90);
+		canvas.drawLine(startPoint.x, startPoint.y, stopPoint.x, stopPoint.y,
+				paint);
+		canvas.drawText("NORTH", startPoint.x, startPoint.y, paint);
 
 	}
 
@@ -282,7 +287,7 @@ public class ARView extends View {
 	 *            [degree]
 	 * @return
 	 */
-	protected Vector convertAzElVector(float azimuth, float elevation) {
+	protected Point convertAzElPoint(float azimuth, float elevation) {
 		float ce = (float) Math.cos(elevation / 180 * Math.PI);
 		float se = (float) Math.sin(elevation / 180 * Math.PI);
 		float ca = (float) Math.cos(azimuth / 180 * Math.PI);
@@ -292,8 +297,8 @@ public class ARView extends View {
 		point.rotateX(pitch);
 		point.rotateY(direction);
 		point.rotateZ(roll);
-		Vector result = new Vector(0.5f * width + point.x, 0.5f * height
-				+ point.y);
+		Point result = new Point(0.5f * width + point.x, 0.5f * height
+				+ point.y, 0);
 
 		return result;
 	}
@@ -324,6 +329,14 @@ public class ARView extends View {
 	public void setStatus(String string) {
 		this.statusString = string;
 
+	}
+
+	public void updateScreenPlane() {
+		screenPlane.setParam((float) (Math.cos(Math.toRadians(pitch)) * Math
+				.sin(Math.toRadians(direction))), -(float) Math.sin(Math
+				.toRadians(pitch)),
+				(float) (Math.cos(Math.toRadians(pitch)) * Math.cos(Math
+						.toRadians(direction))), DISTANCE);
 	}
 
 }
