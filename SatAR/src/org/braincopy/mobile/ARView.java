@@ -73,6 +73,7 @@ public class ARView extends View {
 
 		// draw horizon
 		drawHorizon(canvas, paint);
+		drawAzElLines(canvas, paint, 2);
 		// draw30Line(canvas, paint);
 		// draw60Line(canvas, paint);
 
@@ -157,24 +158,56 @@ public class ARView extends View {
 		}
 	}
 
-	private void draw30Line(Canvas canvas, Paint paint) {
+	private void drawAzElLines(Canvas canvas, Paint paint, int numOfLines) {
+
+		// create visible points array
+		Point[] points = new Point[(numOfLines + 1) * (numOfLines + 1) * 4];
+		for (int i = 0; i < numOfLines + 1; i++) {
+			for (int j = 0; j < (numOfLines + 1) * 4; j++) {
+				points[(numOfLines + 1) * 4 * i + j] = convertAzElPoint(j * 90
+						/ numOfLines, i * 90 / numOfLines);
+			}
+		}
+
+		// draw horizontal lines
+		for (int i = 0; i < numOfLines + 1; i++) {
+			for (int j = 1; j < (numOfLines + 1) * 4; j++) {
+				if (points[(numOfLines + 1) * 4 * i + j - 1] != null
+						&& points[(numOfLines + 1) * 4 * i + j] != null) {
+					canvas.drawLine(points[(numOfLines + 1) * 4 * i + j - 1].x,
+							points[(numOfLines + 1) * 4 * i + j - 1].y,
+							points[(numOfLines + 1) * 4 * i + j].x,
+							points[(numOfLines + 1) * 4 * i + j].y, paint);
+				}
+			}
+			if (points[(numOfLines + 1) * 4 * i] != null
+					&& points[(numOfLines + 1) * 4 * (i + 1) - 1] != null) {
+				canvas.drawLine(points[(numOfLines + 1) * 4 * i].x,
+						points[(numOfLines + 1) * 4 * i].y,
+						points[(numOfLines + 1) * 4 * (i + 1) - 1].x,
+						points[(numOfLines + 1) * 4 * (i + 1) - 1].y, paint);
+			}
+		}
+
+		for (int j = 0; j < (numOfLines + 1) * 4; j++) {
+			for (int i = 0; i < numOfLines + 1; i++) {
+				if (points[(numOfLines + 1) * 4 * i + j] != null
+						&& points[(numOfLines + 1) * 4 * (i + 1) + j] != null) {
+					canvas.drawLine(points[(numOfLines + 1) * 4 * i + j].x,
+							points[(numOfLines + 1) * 4 * i + j].y,
+							points[(numOfLines + 1) * 4 * (i + 1) + j].x,
+							points[(numOfLines + 1) * 4 * (i + 1) + j].y, paint);
+
+				}
+			}
+		}
+
 		float startX, stopX, startY, stopY;
 		for (int i = 0; i < 8; i++) {
 			startX = convertAzElX(i * 45, 30);
 			startY = convertAzElY(i * 45, 30);
 			stopX = convertAzElX((i + 1) * 45, 30);
 			stopY = convertAzElY((i + 1) * 45, 30);
-			canvas.drawLine(startX, startY, stopX, stopY, paint);
-		}
-	}
-
-	private void draw60Line(Canvas canvas, Paint paint) {
-		float startX, stopX, startY, stopY;
-		for (int i = 0; i < 8; i++) {
-			startX = convertAzElX(i * 45, 60);
-			startY = convertAzElY(i * 45, 60);
-			stopX = convertAzElX((i + 1) * 45, 60);
-			stopY = convertAzElY((i + 1) * 45, 60);
 			canvas.drawLine(startX, startY, stopX, stopY, paint);
 		}
 	}
@@ -300,8 +333,9 @@ public class ARView extends View {
 		line = new Line(ce * sa, -se, ce * ca);
 		point = this.screenPlane.getIntersection(line);
 		if (point != null) {
-			point.rotateX(pitch);
+			// the order of rotations is important.
 			point.rotateY(direction);
+			point.rotateX(pitch);
 			point.rotateZ(roll);
 			result = new Point(0.5f * width + point.x, 0.5f * height + point.y,
 					0);
