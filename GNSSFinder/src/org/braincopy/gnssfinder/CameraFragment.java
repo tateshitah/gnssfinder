@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.braincopy.silbala.CameraView;
+
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -42,9 +44,9 @@ import android.view.ViewGroup.LayoutParams;
  * <li>right-handed coordinate system</li>
  * <li>when the camera directs east without any lean and incline, azimuth,
  * pitch, and roll will be 0 (zero).</li>
- * <li>x axis is direction of moving,</li>
- * <li>y axis is horizontal right direction,</li>
- * <li>z axis is vertical down direction,</li>
+ * <li>x axis is horizontal right direction,</li>
+ * <li>y axis is vertical down direction,</li>
+ * <li>z axis is direction of moving,</li>
  * <li>angle increases for clockwise for all axis. The coordinate system should
  * be adjusted for each devices.</li>
  * </ol>
@@ -60,7 +62,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 	List<Sensor> listMag;
 	List<Sensor> listAcc;
 
-	private ARView arView;
+	private GNSSARView arView;
 	private CameraView cameraView;
 	private LocationManager locationManager;
 	private float lat, lon;
@@ -78,7 +80,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 		final View rootView = inflater.inflate(R.layout.fragment_camera,
 				container, false);
 
-		arView = new ARView(this);
+		arView = new GNSSARView(this);
 		arView.setOnTouchListener(new OnTouchListener() {
 
 			@Override

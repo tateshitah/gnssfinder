@@ -72,21 +72,12 @@ public class ARView extends View {
 		canvas.drawText("Lon: " + lon, 50, 250, paint);
 
 		// draw horizon
-		drawHorizon(canvas, paint);
-		drawAzElLines(canvas, paint, 2);
-		// draw30Line(canvas, paint);
-		// draw60Line(canvas, paint);
+		// drawHorizon(canvas, paint);
+		drawAzElLines(canvas, paint, 8);
 
 		drawDirection(canvas, paint);
 		drawSatellites(canvas, paint);
 		drawStatus(canvas, paint);
-		drawTest(canvas, paint, 0, 30);
-		drawTest(canvas, paint, 0, 90);
-		drawTest(canvas, paint, 180, 90);
-		drawTest(canvas, paint, 0, 0);
-		drawTest(canvas, paint, 90, 0);
-		drawTest(canvas, paint, 180, 0);
-		drawTest(canvas, paint, 270, 0);
 
 	}
 
@@ -94,7 +85,7 @@ public class ARView extends View {
 		canvas.drawText(this.statusString, 50, canvas.getHeight() - 50, paint);
 	}
 
-	private void drawTest(Canvas canvas, Paint paint, float az, float el) {
+	public void drawTest(Canvas canvas, Paint paint, float az, float el) {
 		Point point = convertAzElPoint(az, el);
 		if (point != null) {
 			canvas.drawText("(" + az + "," + el + ")", point.x, point.y, paint);
@@ -165,7 +156,7 @@ public class ARView extends View {
 		for (int i = 0; i < numOfLines + 1; i++) {
 			for (int j = 0; j < (numOfLines + 1) * 4; j++) {
 				points[(numOfLines + 1) * 4 * i + j] = convertAzElPoint(j * 90
-						/ numOfLines, i * 90 / numOfLines);
+						/ (numOfLines + 1), i * 90 / (numOfLines + 1));
 			}
 		}
 
@@ -190,7 +181,7 @@ public class ARView extends View {
 		}
 
 		for (int j = 0; j < (numOfLines + 1) * 4; j++) {
-			for (int i = 0; i < numOfLines + 1; i++) {
+			for (int i = 0; i < numOfLines; i++) {
 				if (points[(numOfLines + 1) * 4 * i + j] != null
 						&& points[(numOfLines + 1) * 4 * (i + 1) + j] != null) {
 					canvas.drawLine(points[(numOfLines + 1) * 4 * i + j].x,
@@ -200,15 +191,6 @@ public class ARView extends View {
 
 				}
 			}
-		}
-
-		float startX, stopX, startY, stopY;
-		for (int i = 0; i < 8; i++) {
-			startX = convertAzElX(i * 45, 30);
-			startY = convertAzElY(i * 45, 30);
-			stopX = convertAzElX((i + 1) * 45, 30);
-			stopY = convertAzElY((i + 1) * 45, 30);
-			canvas.drawLine(startX, startY, stopX, stopY, paint);
 		}
 	}
 

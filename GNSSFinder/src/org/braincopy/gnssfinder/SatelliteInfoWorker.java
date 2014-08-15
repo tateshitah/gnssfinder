@@ -159,10 +159,6 @@ public class SatelliteInfoWorker extends Thread {
 		this.currentDate = _currentDate;
 	}
 
-	public void setMessageListener(MessageListener _messageListener) {
-		// this.messageListener = _messageListener;
-	}
-
 	public Satellite[] getSatArray() {
 		return this.satArray;
 	}
