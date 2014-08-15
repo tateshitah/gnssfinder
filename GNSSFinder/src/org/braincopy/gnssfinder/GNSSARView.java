@@ -18,16 +18,6 @@ public class GNSSARView extends ARView {
 
 	private Satellite[] satellites;
 
-	/**
-	 * vertical view angle [degree]
-	 */
-	final float vVeiwAngle = 60.0f;
-
-	/**
-	 * horizontal view angle [degree]
-	 */
-	final float hVeiwAngle = 50.0f;
-
 	public GNSSARView(Context context) {
 		super(context);
 		paint = new Paint();
@@ -72,7 +62,6 @@ public class GNSSARView extends ARView {
 					canvas.drawText(satellites[i].getDescription(),
 							point.x + 30, point.y, paint);
 					matrix.postTranslate(-point.x, -point.y);
-
 				}
 			}
 		}
