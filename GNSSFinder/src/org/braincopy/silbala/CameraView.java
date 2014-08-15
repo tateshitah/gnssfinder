@@ -11,7 +11,7 @@ import android.view.SurfaceView;
 /**
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.2
+ * @version 0.0.4
  * 
  */
 public class CameraView extends SurfaceView implements Callback {
@@ -38,17 +38,19 @@ public class CameraView extends SurfaceView implements Callback {
 
 	@Override
 	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
-		camera.startPreview();
-		// TODO Auto-generated method stub
-
+		if (camera != null) {
+			camera.startPreview();
+		}
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		try {
 			camera = Camera.open();
-			camera.setPreviewDisplay(holder);
-			camera.setDisplayOrientation(90);
+			if (camera != null) {
+				camera.setPreviewDisplay(holder);
+				camera.setDisplayOrientation(90);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
