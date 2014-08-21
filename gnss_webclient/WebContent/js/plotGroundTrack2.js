@@ -140,7 +140,7 @@ function initialize() {
 }
 
 function startPlot(gnssString) {
-    $("#loading").append('<p>now loading <img src="res/drawable/loading.gif"></p>');
+    $("#loading").append('<p style="font-family:arial;color:red;">now loading <img src="res/drawable/loading.gif"></p>');
 	for (var i = 0; i < 20; i++) {
 		satNo[i] = 0;
 	}
@@ -217,8 +217,8 @@ function roadSatellite() {
 			}
 		}
 	};
-	var url = 'http://localhost/gnss_webclient/assets/satelliteDataBase.txt';
-	//var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
+	//var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
+	var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }
