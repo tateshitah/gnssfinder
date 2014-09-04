@@ -217,8 +217,8 @@ function roadSatellite() {
 			}
 		}
 	};
-	//var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
-	var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
+	var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
+	//var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }
@@ -248,6 +248,12 @@ function createAndDrawTrackCoordinateArray(values) {
 					new google.maps.Size(80, 40));
 		} else if (satArray[index].imgStr == "galileo") {
 			image = new google.maps.MarkerImage('res/drawable/galileo.gif',
+					new google.maps.Size(300, 160),
+					new google.maps.Point(0, 0),
+					new google.maps.Point(60, 22.5), new google.maps.Size(90,
+							45));
+		} else if (satArray[index].imgStr == "galileofoc") {
+			image = new google.maps.MarkerImage('res/drawable/galileofoc.gif',
 					new google.maps.Size(300, 160),
 					new google.maps.Point(0, 0),
 					new google.maps.Point(60, 22.5), new google.maps.Size(90,
