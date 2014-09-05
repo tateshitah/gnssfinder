@@ -223,6 +223,12 @@ function createAndDrawTrackCoordinateArray(values) {
 					new google.maps.Point(0, 0),
 					new google.maps.Point(60, 22.5), new google.maps.Size(90,
 							45));
+		} else if (satArray[index].imgStr == "galileofoc") {
+			image = new google.maps.MarkerImage('res/drawable/GalileoFOC.gif',
+					new google.maps.Size(300, 160),
+					new google.maps.Point(0, 0),
+					new google.maps.Point(60, 22.5), new google.maps.Size(90,
+							45));
 		} else if (satArray[index].imgStr == "gpsBlockIIF") {
 			image = new google.maps.MarkerImage('res/drawable/IIF.gif',
 					new google.maps.Size(300, 160),
