@@ -7,9 +7,10 @@ import android.graphics.Paint;
 import android.view.View;
 
 /**
+ * Please extend this class to create your ARView and override onDraw() method.
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.6
+ * @version 0.0.9
  * 
  */
 public class ARView extends View {
@@ -73,6 +74,11 @@ public class ARView extends View {
 	 */
 	protected Point point;
 
+	/**
+	 * radius of the earth. [m]
+	 */
+	public static final double RADIUS_OF_EARTH = 6378137.0;
+
 	public ARView(Context context) {
 		super(context);
 		paint = new Paint();
@@ -111,6 +117,45 @@ public class ARView extends View {
 		Point point = convertAzElPoint(az, el);
 		if (point != null) {
 			canvas.drawText("(" + az + "," + el + ")", point.x, point.y, paint);
+		}
+	}
+
+	/**
+	 * 
+	 * @param canvas
+	 * @param paint
+	 * @param delta
+	 * @param heightOfRoof
+	 * @param numOfLines
+	 */
+	public void drawRoof(Canvas canvas, Paint paint, float delta,
+			float heightOfRoof, int numOfLines) {
+		// create points
+		Point[][] points = new Point[2 * numOfLines + 1][2 * numOfLines + 1];
+		for (int i = 0; i < 2 * numOfLines + 1; i++) {
+			for (int j = 0; j < 2 * numOfLines + 1; j++) {
+				points[i][j] = convertLatLonPoint(lat + delta
+						* (i - numOfLines), lon + delta * (j - numOfLines),
+						heightOfRoof);
+			}
+		}
+
+		// draw points
+		for (int i = 0; i < 2 * numOfLines + 1; i++) {
+			for (int j = 0; j < 2 * numOfLines; j++) {
+				if (points[i][j] != null && points[i][j + 1] != null) {
+					canvas.drawLine(points[i][j].x, points[i][j].y,
+							points[i][j + 1].x, points[i][j + 1].y, paint);
+				}
+			}
+		}
+		for (int i = 0; i < 2 * numOfLines; i++) {
+			for (int j = 0; j < 2 * numOfLines + 1; j++) {
+				if (points[i][j] != null && points[i + 1][j] != null) {
+					canvas.drawLine(points[i][j].x, points[i][j].y,
+							points[i + 1][j].x, points[i + 1][j].y, paint);
+				}
+			}
 		}
 	}
 
@@ -210,6 +255,56 @@ public class ARView extends View {
 				DISTANCE);
 
 		invalidate();
+	}
+
+	/**
+	 * 
+	 * @param lat_t
+	 *            latitude of target [deg]
+	 * @param lon_t
+	 *            longitude of target [deg]
+	 * @param alt_t
+	 *            altitude of target
+	 * @return
+	 */
+	protected Point convertLatLonPoint(float lat_t, float lon_t, float alt_t) {
+		Point result = null;
+		/*
+		 * [rad]
+		 */
+		float deltaThetaLat, deltaThetaLon;
+
+		deltaThetaLat = (float) Math.toRadians(this.lat - lat_t);
+		deltaThetaLon = (float) Math.toRadians(this.lon - lon_t);
+
+		/*
+		 * difference between current position (lat, lon) and target position
+		 * (lat_t, lon_t) should be less than 90 degree.
+		 */
+		if (Math.abs(deltaThetaLat) < 0.5 * Math.PI
+				&& Math.abs(deltaThetaLon) < 0.5 * Math.PI) {
+			/*
+			 * [rad]
+			 */
+			float deltaTheta = (float) Math.sqrt(deltaThetaLat * deltaThetaLat
+					+ deltaThetaLon * deltaThetaLon);
+
+			/*
+			 * target should be above horizon.
+			 */
+			if (RADIUS_OF_EARTH / Math.cos(deltaTheta) < RADIUS_OF_EARTH
+					+ alt_t) {
+				float az = (float) Math.toDegrees(Math.atan2(
+						Math.tan(deltaThetaLat), Math.tan(deltaThetaLon)));
+				float el = (float) Math.toDegrees(Math.atan2(
+						(RADIUS_OF_EARTH + alt_t) * Math.cos(deltaTheta)
+								- RADIUS_OF_EARTH, (RADIUS_OF_EARTH + alt_t)
+								* Math.sin(deltaTheta)));
+				result = convertAzElPoint(az, el);
+			}
+		}
+
+		return result;
 	}
 
 	/**

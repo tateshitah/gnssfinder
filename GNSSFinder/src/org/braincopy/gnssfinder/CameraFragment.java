@@ -249,6 +249,10 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 							satellites[i].setImage(BitmapFactory
 									.decodeResource(resources,
 											R.drawable.galileo));
+						} else if (gnssStr.equals("galileofoc")) {
+							satellites[i].setImage(BitmapFactory
+									.decodeResource(resources,
+											R.drawable.galileofoc));
 						} else if (gnssStr.equals("gpsBlockIIF")) {
 							satellites[i].setImage(BitmapFactory
 									.decodeResource(resources, R.drawable.iif));

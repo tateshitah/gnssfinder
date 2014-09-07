@@ -14,10 +14,11 @@ package org.braincopy.silbala;
  * a normal vector should be (a, b, c)
  * 
  * @author Hiroaki Tateshita
+ * @version 0.0.1
  * 
  */
 public class Plane {
-	// ax + by + cz = d
+	// the equation of a plane: ax + by + cz = d
 	float a, b, c, d;
 
 	public Plane(float a_, float b_, float c_, float d_) {
@@ -35,9 +36,29 @@ public class Plane {
 	}
 
 	/**
+	 * This method returns intersection point of this plane and inputed line and
+	 * return null when no intersection.
+	 * 
+	 * When The equation of the line is <br/>
+	 * <i>x/la = y/lb = z/lc,</i> <br/>
+	 * by using "t", we can see <br/>
+	 * <i>x = la * t, y = lb * t, z = lc * t </i><br/>
+	 * 
+	 * When the equation of this plane is <br/>
+	 * <i>pa * x + pb * y + pc * z = d</i> <br/>
+	 * to get intersection point, x, y, z are assigned by using <i>t</i><br/>
+	 * 
+	 * Then we get <br/>
+	 * <i> t * (pa * la + pb * lb + pc *lc) = d </i><br/>
+	 * <i> t = d / (pa * la + pb * lb + pc *lc) </i><br/>
+	 * 
+	 * Then we can get the intersection point<br/>
+	 * <i>( la * t, lb * t, lc * t) </i><br/>
 	 * 
 	 * @param line
-	 * @return intersection point . return null when no intersection.
+	 *            this line should start from original point (0,0,0)
+	 * @return intersection point of this plane and inputed line. return null
+	 *         when no intersection.
 	 */
 	public Point getIntersection(Line line) {
 		Point result = null;
