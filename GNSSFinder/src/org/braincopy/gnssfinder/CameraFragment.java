@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.braincopy.silbala.CameraView;
+import org.braincopy.silbala.CameraCallbackImpl;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -32,10 +32,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageButton;
 
 /**
  * a Fragment of for camera mode of GNSS Finder. The coordinate system of
@@ -52,6 +56,7 @@ import android.view.ViewGroup.LayoutParams;
  * </ol>
  * 
  * @author Hiroaki Tateshita
+ * @version 0.0.1
  * 
  */
 public class CameraFragment extends Fragment implements SensorEventListener,
@@ -63,7 +68,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 	List<Sensor> listAcc;
 
 	private GNSSARView arView;
-	private CameraView cameraView;
+	// private CameraView cameraView;
 	private LocationManager locationManager;
 	private float lat, lon;
 	private GeomagneticField geomagneticField;
@@ -73,12 +78,31 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// super.onCreate(savedInstanceState);
-		cameraView = new CameraView(getActivity());
-		container.addView(cameraView, new LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		// super.onCreate(savedInstanceState);call me maybe
+		// cameraView = new CameraView(getActivity());
+		// container.addView(cameraView, new LayoutParams(
+		// LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		final View rootView = inflater.inflate(R.layout.fragment_camera,
 				container, false);
+
+		// /from here
+		final CameraCallbackImpl callbackImple = new CameraCallbackImpl();
+		SurfaceView camView = (SurfaceView) rootView
+				.findViewById(R.id.cam_view);
+		SurfaceHolder holder = camView.getHolder();
+		// holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		holder.addCallback(callbackImple);
+
+		ImageButton shutterButton = (ImageButton) rootView
+				.findViewById(R.id.cameraShutter);
+		shutterButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				callbackImple.takePicture();
+
+			}
+		});
 
 		arView = new GNSSARView(this);
 		arView.setOnTouchListener(new OnTouchListener() {
@@ -95,9 +119,19 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 				return true;
 			}
 		});
+		callbackImple.setOverlayView(arView);
+		callbackImple.setContentResolver(this.getActivity()
+				.getContentResolver());
 
-		container.addView(arView, new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT));
+		// should we add to container instead of root veiw?
+		// container.addView(arView, new LayoutParams(LayoutParams.MATCH_PARENT,
+		// LayoutParams.MATCH_PARENT));
+		getActivity().addContentView(
+				arView,
+				new LayoutParams(LayoutParams.MATCH_PARENT,
+						LayoutParams.MATCH_PARENT));
+
+		// to here for SiLBALA
 
 		getActivity().setRequestedOrientation(
 				ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -153,7 +187,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 	@Override
 	public void onPause() {
 		super.onPause();
-		cameraView.stopPreviewAndFreeCamera();
+		// cameraView.stopPreviewAndFreeCamera();
 	}
 
 	@Override
@@ -161,7 +195,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 		super.onStop();
 		locationManager.removeUpdates(this);
 		sensorManager.unregisterListener(this);
-		cameraView.stopPreviewAndFreeCamera();
+		// cameraView.stopPreviewAndFreeCamera();
 
 	}
 

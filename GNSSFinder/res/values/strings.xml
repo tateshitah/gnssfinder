@@ -13,5 +13,6 @@
     <string name="label_qzss_checkbox">QZSS</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
-
+    <string name="camera_icon">camera icon</string>
+    
 </resources>

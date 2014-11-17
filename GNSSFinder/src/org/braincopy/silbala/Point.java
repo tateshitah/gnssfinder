@@ -1,7 +1,7 @@
 package org.braincopy.silbala;
 
 /**
- * Coordinates system
+ * Express point (x, y, z) based on real world Coordinates system
  * 
  * <ol>
  * <li>right-handed coordinate system</li>
@@ -9,17 +9,17 @@ package org.braincopy.silbala;
  * <li>y axis is down direction,</li>
  * <li>z axis is east direction,</li>
  * <li>angle increases for clockwise for all axis.</li>
+ * <li>original point (0, 0, 0) means the position of android device user.</li>
  * </ol>
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.1
+ * @version 0.2.0
  * 
  */
 public class Point {
 	public float x, y, z;
 
 	public Point() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public Point(float x_, float y_, float z_) {
@@ -68,6 +68,10 @@ public class Point {
 		dy = -this.x * Math.sin(rad) + this.y * Math.cos(rad);
 		this.x = (float) dx;
 		this.y = (float) dy;
+	}
+
+	public String toString() {
+		return "(" + x + ", " + y + ", " + z + ")";
 	}
 
 }

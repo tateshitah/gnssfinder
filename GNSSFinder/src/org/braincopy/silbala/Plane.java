@@ -8,13 +8,14 @@ package org.braincopy.silbala;
  * <li>x axis is south direction,</li>
  * <li>y axis is down direction,</li>
  * <li>z axis is east direction,</li>
- * <li>angle increases for clockwise for all axis.</li>
+ * <li>angle increases for clockwise for all axis,</li>
+ * <li>original point (0, 0, 0) means the position of android device user.</li>
  * </ol>
  * 
  * a normal vector should be (a, b, c)
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.1
+ * @version 0.2.0
  * 
  */
 public class Plane {
@@ -75,4 +76,8 @@ public class Plane {
 		return result;
 	}
 
+	public String toString() {
+		return "the equation of this plane: " + a + "x + " + b + "y + " + c
+				+ "z = " + d;
+	}
 }

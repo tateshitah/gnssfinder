@@ -10,11 +10,13 @@ package org.braincopy.silbala;
  * <li>y axis is down direction,</li>
  * <li>z axis is east direction,</li>
  * <li>angle increases for clockwise for all axis.</li>
+ * <li>original point (0, 0, 0) means the position of android device user.</li>
  * </ol>
  * 
  * directional vector should be (a, b, c)
  * 
  * @author Hiroaki Tateshita
+ * @version 0.2.0
  * 
  */
 public class Line {
@@ -25,6 +27,10 @@ public class Line {
 		this.a = a_;
 		this.b = b_;
 		this.c = c_;
+	}
+
+	public String toString() {
+		return "x/" + a + " = y/" + b + " = z/" + c;
 	}
 
 }

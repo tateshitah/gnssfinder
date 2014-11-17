@@ -10,7 +10,7 @@ import android.view.View;
  * Please extend this class to create your ARView and override onDraw() method.
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.9
+ * @version 0.2.0
  * 
  */
 public class ARView extends View {
@@ -33,6 +33,9 @@ public class ARView extends View {
 	 */
 	private static final float DISTANCE = 1350f;
 
+	/**
+	 * [deg]
+	 */
 	protected float lat, lon;
 
 	protected Paint paint;
@@ -57,7 +60,7 @@ public class ARView extends View {
 	 */
 	protected float roll;
 
-	private String statusString = "connecting...";
+	private String statusString = "put some message related to status";
 
 	/**
 	 * 
@@ -85,7 +88,9 @@ public class ARView extends View {
 		paint.setAntiAlias(true);
 		paint.setColor(Color.RED);
 		paint.setTextSize(20);
+		paint.setStyle(Paint.Style.STROKE);
 		screenPlane = new Plane(0, 0, 0, 0);
+		setDrawingCacheEnabled(true);
 	}
 
 	@Override
@@ -109,56 +114,129 @@ public class ARView extends View {
 
 	}
 
-	private void drawStatus(Canvas canvas, Paint paint2) {
-		canvas.drawText(this.statusString, 50, canvas.getHeight() - 50, paint);
-	}
+	public void drawScreen(float[] orientation, float lat_, float lon_) {
+		direction = ((float) Math.toDegrees(orientation[0]) + 360) % 360;
+		pitch = (float) Math.toDegrees(orientation[1]);
+		roll = (float) Math.toDegrees(orientation[2]);
+		this.lat = lat_;
+		this.lon = lon_;
 
-	public void drawTest(Canvas canvas, Paint paint, float az, float el) {
-		Point point = convertAzElPoint(az, el);
-		if (point != null) {
-			canvas.drawText("(" + az + "," + el + ")", point.x, point.y, paint);
-		}
+		screenPlane.setParam(
+				(float) (Math.cos(orientation[1]) * Math.sin(orientation[0])),
+				-(float) Math.sin(orientation[1]),
+				(float) (Math.cos(orientation[1]) * Math.cos(orientation[0])),
+				DISTANCE);
+
+		invalidate();
 	}
 
 	/**
+	 * This method provides a function to calculate the point on the screen from
+	 * azimuth and elevation.
+	 * 
+	 * @param azimuth
+	 *            of target [degree]
+	 * @param elevation
+	 *            of target [degree]
+	 * @return point on the screen of android device. This point is on the
+	 *         display screen coordinate. When there is no point on the screen,
+	 *         return null.
+	 */
+	public Point convertAzElPoint(float azimuth, float elevation) {
+		Point result = null;
+
+		/*
+		 * create Line object which starts from the original point (0 ,0 ,0) and
+		 * whose directional vector is calculated by input azimuth and
+		 * elevation.
+		 */
+		float ce = (float) Math.cos(elevation / 180 * Math.PI);
+		float se = (float) Math.sin(elevation / 180 * Math.PI);
+		float ca = (float) Math.cos(azimuth / 180 * Math.PI);
+		float sa = (float) Math.sin(azimuth / 180 * Math.PI);
+		line = new Line(ce * sa, -se, ce * ca);
+
+		/*
+		 * acquired point is on the real world coordinate.
+		 */
+		point = this.screenPlane.getIntersection(line);
+
+		/*
+		 * convert to display screen coordinate
+		 */
+		if (point != null) {
+			// the order of rotations is important.
+			point.rotateY(direction);
+			point.rotateX(pitch);
+			point.rotateZ(roll);
+			result = new Point(0.5f * width + point.x, 0.5f * height + point.y,
+					0);
+		}
+		return result;
+	}
+
+	/**
+	 * This method provides a function to calculate the point on the screen from
+	 * the target of latitude, longitude and altitude. In this method, comparing
+	 * original position and the inputed information, azimuth and elevation will
+	 * be calculated and the result will be inputed to convertAzElPoint().
+	 * 
+	 * @param lat_t
+	 *            latitude of target [deg]
+	 * @param lon_t
+	 *            longitude of target [deg]
+	 * @param alt_t
+	 *            altitude of target [m]
+	 * @return the point on the screen of android device.
+	 */
+	public Point convertLatLonPoint(float lat_t, float lon_t, float alt_t) {
+		Point result = null;
+		/*
+		 * [rad]
+		 */
+		float deltaThetaLat, deltaThetaLon;
+
+		deltaThetaLat = (float) Math.toRadians(this.lat - lat_t);
+		deltaThetaLon = (float) Math.toRadians(this.lon - lon_t);
+
+		/*
+		 * difference between current position (lat, lon) and target position
+		 * (lat_t, lon_t) should be less than 90 degree.
+		 */
+		if (Math.abs(deltaThetaLat) < 0.5 * Math.PI
+				&& Math.abs(deltaThetaLon) < 0.5 * Math.PI) {
+			/*
+			 * [rad]
+			 */
+			float deltaTheta = (float) Math.sqrt(deltaThetaLat * deltaThetaLat
+					+ deltaThetaLon * deltaThetaLon);
+
+			/*
+			 * target should be above horizon.
+			 */
+			if (RADIUS_OF_EARTH / Math.cos(deltaTheta) < RADIUS_OF_EARTH
+					+ alt_t) {
+				float az = (float) Math.toDegrees(Math.atan2(
+						Math.tan(deltaThetaLat), Math.tan(deltaThetaLon)));
+				float el = (float) Math.toDegrees(Math.atan2(
+						(RADIUS_OF_EARTH + alt_t) * Math.cos(deltaTheta)
+								- RADIUS_OF_EARTH, (RADIUS_OF_EARTH + alt_t)
+								* Math.sin(deltaTheta)));
+				result = convertAzElPoint(az, el);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * This method provides a function to draw the azimuth and elevation line.
 	 * 
 	 * @param canvas
 	 * @param paint
-	 * @param delta
-	 * @param heightOfRoof
 	 * @param numOfLines
+	 *            number of lines between 0 - 90 degree of elevation.
 	 */
-	public void drawRoof(Canvas canvas, Paint paint, float delta,
-			float heightOfRoof, int numOfLines) {
-		// create points
-		Point[][] points = new Point[2 * numOfLines + 1][2 * numOfLines + 1];
-		for (int i = 0; i < 2 * numOfLines + 1; i++) {
-			for (int j = 0; j < 2 * numOfLines + 1; j++) {
-				points[i][j] = convertLatLonPoint(lat + delta
-						* (i - numOfLines), lon + delta * (j - numOfLines),
-						heightOfRoof);
-			}
-		}
-
-		// draw points
-		for (int i = 0; i < 2 * numOfLines + 1; i++) {
-			for (int j = 0; j < 2 * numOfLines; j++) {
-				if (points[i][j] != null && points[i][j + 1] != null) {
-					canvas.drawLine(points[i][j].x, points[i][j].y,
-							points[i][j + 1].x, points[i][j + 1].y, paint);
-				}
-			}
-		}
-		for (int i = 0; i < 2 * numOfLines; i++) {
-			for (int j = 0; j < 2 * numOfLines + 1; j++) {
-				if (points[i][j] != null && points[i + 1][j] != null) {
-					canvas.drawLine(points[i][j].x, points[i][j].y,
-							points[i + 1][j].x, points[i + 1][j].y, paint);
-				}
-			}
-		}
-	}
-
 	public void drawAzElLines(Canvas canvas, Paint paint, int numOfLines) {
 
 		// create visible points array
@@ -213,7 +291,67 @@ public class ARView extends View {
 		}
 	}
 
-	private void drawDirection(Canvas canvas, Paint paint) {
+	/**
+	 * This method provides a function to draw a kind of virtual roof of
+	 * latitude and longitude grid.
+	 * 
+	 * @param canvas
+	 * @param paint
+	 * @param delta
+	 *            [deg]
+	 * @param heightOfRoof
+	 *            [m]
+	 * @param numOfLines
+	 */
+	public void drawRoof(Canvas canvas, Paint paint, float delta,
+			float heightOfRoof, int numOfLines) {
+		// create points
+		Point[][] points = new Point[2 * numOfLines + 1][2 * numOfLines + 1];
+		for (int i = 0; i < 2 * numOfLines + 1; i++) {
+			for (int j = 0; j < 2 * numOfLines + 1; j++) {
+				points[i][j] = convertLatLonPoint(lat + delta
+						* (i - numOfLines), lon + delta * (j - numOfLines),
+						heightOfRoof);
+			}
+		}
+
+		// draw points
+		for (int i = 0; i < 2 * numOfLines + 1; i++) {
+			for (int j = 0; j < 2 * numOfLines; j++) {
+				if (points[i][j] != null && points[i][j + 1] != null) {
+					canvas.drawLine(points[i][j].x, points[i][j].y,
+							points[i][j + 1].x, points[i][j + 1].y, paint);
+				}
+			}
+		}
+		for (int i = 0; i < 2 * numOfLines; i++) {
+			for (int j = 0; j < 2 * numOfLines + 1; j++) {
+				if (points[i][j] != null && points[i + 1][j] != null) {
+					canvas.drawLine(points[i][j].x, points[i][j].y,
+							points[i + 1][j].x, points[i + 1][j].y, paint);
+				}
+			}
+		}
+	}
+
+	private void drawStatus(Canvas canvas, Paint paint2) {
+		canvas.drawText(this.statusString, 50, canvas.getHeight() - 50, paint);
+	}
+
+	public void drawTest(Canvas canvas, Paint paint, float az, float el) {
+		Point point = convertAzElPoint(az, el);
+		if (point != null) {
+			canvas.drawText("(" + az + "," + el + ")", point.x, point.y, paint);
+		}
+	}
+
+	/**
+	 * This method is to draw EAST, WEST, NORTH, and SOUTH.
+	 * 
+	 * @param canvas
+	 * @param paint
+	 */
+	public void drawDirection(Canvas canvas, Paint paint) {
 		Point textPoint;
 
 		// draw west
@@ -239,105 +377,6 @@ public class ARView extends View {
 		if (textPoint != null) {
 			canvas.drawText("NORTH", textPoint.x, textPoint.y, paint);
 		}
-	}
-
-	public void drawScreen(float[] orientation, float lat_, float lon_) {
-		direction = ((float) Math.toDegrees(orientation[0]) + 360) % 360;
-		pitch = (float) Math.toDegrees(orientation[1]);
-		roll = (float) Math.toDegrees(orientation[2]);
-		this.lat = lat_;
-		this.lon = lon_;
-
-		screenPlane.setParam(
-				(float) (Math.cos(orientation[1]) * Math.sin(orientation[0])),
-				-(float) Math.sin(orientation[1]),
-				(float) (Math.cos(orientation[1]) * Math.cos(orientation[0])),
-				DISTANCE);
-
-		invalidate();
-	}
-
-	/**
-	 * 
-	 * @param lat_t
-	 *            latitude of target [deg]
-	 * @param lon_t
-	 *            longitude of target [deg]
-	 * @param alt_t
-	 *            altitude of target
-	 * @return
-	 */
-	protected Point convertLatLonPoint(float lat_t, float lon_t, float alt_t) {
-		Point result = null;
-		/*
-		 * [rad]
-		 */
-		float deltaThetaLat, deltaThetaLon;
-
-		deltaThetaLat = (float) Math.toRadians(this.lat - lat_t);
-		deltaThetaLon = (float) Math.toRadians(this.lon - lon_t);
-
-		/*
-		 * difference between current position (lat, lon) and target position
-		 * (lat_t, lon_t) should be less than 90 degree.
-		 */
-		if (Math.abs(deltaThetaLat) < 0.5 * Math.PI
-				&& Math.abs(deltaThetaLon) < 0.5 * Math.PI) {
-			/*
-			 * [rad]
-			 */
-			float deltaTheta = (float) Math.sqrt(deltaThetaLat * deltaThetaLat
-					+ deltaThetaLon * deltaThetaLon);
-
-			/*
-			 * target should be above horizon.
-			 */
-			if (RADIUS_OF_EARTH / Math.cos(deltaTheta) < RADIUS_OF_EARTH
-					+ alt_t) {
-				float az = (float) Math.toDegrees(Math.atan2(
-						Math.tan(deltaThetaLat), Math.tan(deltaThetaLon)));
-				float el = (float) Math.toDegrees(Math.atan2(
-						(RADIUS_OF_EARTH + alt_t) * Math.cos(deltaTheta)
-								- RADIUS_OF_EARTH, (RADIUS_OF_EARTH + alt_t)
-								* Math.sin(deltaTheta)));
-				result = convertAzElPoint(az, el);
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * 
-	 * @param azimuth
-	 *            [degree]
-	 * @param elevation
-	 *            [degree]
-	 * @return
-	 */
-	protected Point convertAzElPoint(float azimuth, float elevation) {
-		Point result = null;
-
-		/*
-		 * create Line object which starts from the original point (0 ,0 ,0) and
-		 * whose directional vector is by input azimuth and elevation.
-		 */
-		float ce = (float) Math.cos(elevation / 180 * Math.PI);
-		float se = (float) Math.sin(elevation / 180 * Math.PI);
-		float ca = (float) Math.cos(azimuth / 180 * Math.PI);
-		float sa = (float) Math.sin(azimuth / 180 * Math.PI);
-		line = new Line(ce * sa, -se, ce * ca);
-
-		point = this.screenPlane.getIntersection(line);
-		if (point != null) {
-			// the order of rotations is important.
-			point.rotateY(direction);
-			point.rotateX(pitch);
-			point.rotateZ(roll);
-			result = new Point(0.5f * width + point.x, 0.5f * height + point.y,
-					0);
-		}
-		return result;
 	}
 
 	public void setStatus(String string) {

@@ -12,6 +12,7 @@ import android.graphics.Paint;
 /**
  * 
  * @author Hiroaki Tateshita
+ * @version 0.0.1
  * 
  */
 public class GNSSARView extends ARView {
