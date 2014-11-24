@@ -56,7 +56,7 @@ import android.widget.ImageButton;
  * </ol>
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.1
+ * @version 0.0.2
  * 
  */
 public class CameraFragment extends Fragment implements SensorEventListener,
@@ -87,11 +87,14 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 
 		// /from here
 		final CameraCallbackImpl callbackImple = new CameraCallbackImpl();
-		SurfaceView camView = (SurfaceView) rootView
-				.findViewById(R.id.cam_view);
+		SurfaceView camView = new SurfaceView(getActivity());
+		// SurfaceView camView = (SurfaceView) rootView
+		// .findViewById(R.id.cam_view);
 		SurfaceHolder holder = camView.getHolder();
 		// holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		holder.addCallback(callbackImple);
+		container.addView(camView, new LayoutParams(LayoutParams.MATCH_PARENT,
+				LayoutParams.MATCH_PARENT));
 
 		ImageButton shutterButton = (ImageButton) rootView
 				.findViewById(R.id.cameraShutter);
@@ -109,6 +112,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
+				// callbackImple.cameraStop();
 				MainFragment mainFragment = new MainFragment();
 				FragmentTransaction transaction = getFragmentManager()
 						.beginTransaction();
@@ -124,12 +128,8 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 				.getContentResolver());
 
 		// should we add to container instead of root veiw?
-		// container.addView(arView, new LayoutParams(LayoutParams.MATCH_PARENT,
-		// LayoutParams.MATCH_PARENT));
-		getActivity().addContentView(
-				arView,
-				new LayoutParams(LayoutParams.MATCH_PARENT,
-						LayoutParams.MATCH_PARENT));
+		container.addView(arView, new LayoutParams(LayoutParams.MATCH_PARENT,
+				LayoutParams.MATCH_PARENT));
 
 		// to here for SiLBALA
 
