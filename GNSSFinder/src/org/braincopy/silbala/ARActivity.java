@@ -41,7 +41,7 @@ import android.widget.ImageButton;
  * Call me maybe, Royals, Grace Kelly
  * 
  * @author Hiroaki Tateshita
- * @version 0.1.2
+ * @version 0.2.0
  * 
  */
 public class ARActivity extends Activity implements SensorEventListener,
@@ -54,7 +54,7 @@ public class ARActivity extends Activity implements SensorEventListener,
 
 	private ARView arView;
 	private LocationManager locationManager;
-	private float lat, lon;
+	public float lat, lon;
 	private GeomagneticField geomagneticField;
 	CameraCallbackImpl callbackImple;
 

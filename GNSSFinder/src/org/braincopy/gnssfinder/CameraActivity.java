@@ -28,13 +28,13 @@ import android.view.MenuItem;
  * a Activity class of for camera mode of GNSS Finder.
  * 
  * @author Hiroaki Tateshita
- * @version 0.1.0
+ * @version 0.2.0
  * 
  */
 public class CameraActivity extends ARActivity {
 
 	private GNSSARView gnssArView;
-	private float lat, lon;
+	// private float lat, lon;
 	private Satellite[] satellites;
 	private SatelliteInfoWorker worker;
 
