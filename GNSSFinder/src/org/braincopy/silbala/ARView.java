@@ -10,7 +10,7 @@ import android.view.View;
  * Please extend this class to create your ARView and override onDraw() method.
  * 
  * @author Hiroaki Tateshita
- * @version 0.2.0
+ * @version 0.3.0
  * 
  */
 public class ARView extends View {
@@ -63,7 +63,7 @@ public class ARView extends View {
 	private String statusString = "put some message related to status";
 
 	/**
-	 * 
+	 * the plane of display screen of smart-phone.
 	 */
 	private Plane screenPlane;
 
@@ -196,8 +196,8 @@ public class ARView extends View {
 		 */
 		float deltaThetaLat, deltaThetaLon;
 
-		deltaThetaLat = (float) Math.toRadians(this.lat - lat_t);
-		deltaThetaLon = (float) Math.toRadians(this.lon - lon_t);
+		deltaThetaLat = (float) Math.toRadians(lat_t - this.lat);
+		deltaThetaLon = (float) Math.toRadians(lon_t - this.lon);
 
 		/*
 		 * difference between current position (lat, lon) and target position
@@ -216,7 +216,7 @@ public class ARView extends View {
 			 */
 			if (RADIUS_OF_EARTH / Math.cos(deltaTheta) < RADIUS_OF_EARTH
 					+ alt_t) {
-				float az = (float) Math.toDegrees(Math.atan2(
+				float az = (float) -Math.toDegrees(Math.atan2(
 						Math.tan(deltaThetaLat), Math.tan(deltaThetaLon)));
 				float el = (float) Math.toDegrees(Math.atan2(
 						(RADIUS_OF_EARTH + alt_t) * Math.cos(deltaTheta)
@@ -353,29 +353,74 @@ public class ARView extends View {
 	 */
 	public void drawDirection(Canvas canvas, Paint paint) {
 		Point textPoint;
+		Point pointForLine;
 
 		// draw west
 		textPoint = convertAzElPoint(180, 0);
+		pointForLine = convertAzElPoint(180, 10);
 		if (textPoint != null) {
 			canvas.drawText("WEST", textPoint.x, textPoint.y, paint);
+			if (pointForLine != null) {
+				canvas.drawLine(textPoint.x, textPoint.y, pointForLine.x,
+						pointForLine.y, paint);
+			}
 		}
 
 		// draw south
 		textPoint = convertAzElPoint(90, 0);
+		pointForLine = convertAzElPoint(90, 10);
 		if (textPoint != null) {
 			canvas.drawText("SOUTH", textPoint.x, textPoint.y, paint);
+			if (pointForLine != null) {
+				canvas.drawLine(textPoint.x, textPoint.y, pointForLine.x,
+						pointForLine.y, paint);
+			}
 		}
 
 		// draw east
 		textPoint = convertAzElPoint(0, 0);
+		pointForLine = convertAzElPoint(0, 10);
 		if (textPoint != null) {
 			canvas.drawText("EAST", textPoint.x, textPoint.y, paint);
+			if (pointForLine != null) {
+				canvas.drawLine(textPoint.x, textPoint.y, pointForLine.x,
+						pointForLine.y, paint);
+			}
 		}
 
 		// draw north
 		textPoint = convertAzElPoint(270, 0);
+		pointForLine = convertAzElPoint(270, 10);
 		if (textPoint != null) {
 			canvas.drawText("NORTH", textPoint.x, textPoint.y, paint);
+			if (pointForLine != null) {
+				canvas.drawLine(textPoint.x, textPoint.y, pointForLine.x,
+						pointForLine.y, paint);
+			}
+		}
+		drawHorizon(canvas, paint);
+	}
+
+	/**
+	 * 
+	 * @param canvas
+	 * @param paint
+	 */
+	public void drawHorizon(Canvas canvas, Paint paint) {
+		Point[] points = new Point[12];
+		for (int i = 0; i < points.length; i++) {
+			points[i] = convertAzElPoint(30 * i, 0);
+		}
+		for (int i = 0; i < points.length - 1; i++) {
+			if (points[i] != null && points[i + 1] != null) {
+				canvas.drawLine(points[i].x, points[i].y, points[i + 1].x,
+						points[i + 1].y, paint);
+			}
+		}
+		if (points[points.length - 1] != null && points[0] != null) {
+			canvas.drawLine(points[points.length - 1].x,
+					points[points.length - 1].y, points[0].x, points[0].y,
+					paint);
 		}
 	}
 

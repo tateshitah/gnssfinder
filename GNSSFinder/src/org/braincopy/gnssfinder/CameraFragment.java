@@ -57,6 +57,8 @@ import android.widget.ImageButton;
  * 
  * @author Hiroaki Tateshita
  * @version 0.0.2
+ * @deprecated this class causes unexpected shutdown of application because of
+ *             camera.
  * 
  */
 public class CameraFragment extends Fragment implements SensorEventListener,

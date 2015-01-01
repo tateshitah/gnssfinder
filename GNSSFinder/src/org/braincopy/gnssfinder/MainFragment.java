@@ -2,6 +2,7 @@ package org.braincopy.gnssfinder;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,13 +24,16 @@ public class MainFragment extends Fragment {
 		cameraButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				CameraFragment cameraFragment = new CameraFragment();
-				// View view = getActivity().findViewById(R.id.container);
-				FragmentTransaction transaction = getFragmentManager()
-						.beginTransaction();
-				transaction.addToBackStack(null);
-				transaction.replace(R.id.container, cameraFragment);
-				transaction.commit();
+				// CameraFragment cameraFragment = new CameraFragment();
+				// FragmentTransaction transaction = getFragmentManager()
+				// .beginTransaction();
+				// transaction.addToBackStack(null);
+				// transaction.replace(R.id.container, cameraFragment);
+				// transaction.commit();
+				Intent intent = new Intent(getActivity()
+						.getApplicationContext(), CameraActivity.class);
+				startActivity(intent);
+
 			}
 		});
 		/*
