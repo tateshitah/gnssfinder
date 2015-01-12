@@ -67,7 +67,7 @@ import sgp4v.Sgp4Unit;
 /**
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.9
+ * @version 0.5.0
  * 
  */
 @Path("az_and_el")
@@ -232,7 +232,7 @@ public class AzimuthAndElevationResource {
 		if ("xml".equalsIgnoreCase(format)) {
 			String entity = format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 					+ "<response><result>ok</result><values>%s</values>"
-					+ "<ver>0.1.0</ver></response>", data_entity);
+					+ "<ver>0.5.0</ver></response>", data_entity);
 			builder = builder.entity(entity);
 			builder = builder.type(MediaType.TEXT_XML_TYPE);
 		} else if ("json".equalsIgnoreCase(format)) {
