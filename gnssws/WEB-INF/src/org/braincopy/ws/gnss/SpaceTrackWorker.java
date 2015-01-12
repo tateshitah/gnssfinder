@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013-2014 braincopy.org
+Copyright (c) 2013-2015 braincopy.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -63,6 +63,7 @@ import sgp4v.Sgp4Unit;
 /**
  * 
  * @author Hiroaki Tateshita
+ * @version 0.5.0
  * 
  */
 public class SpaceTrackWorker {
@@ -350,14 +351,15 @@ public class SpaceTrackWorker {
 					String.valueOf(tleString.getNoradCatalogID()));
 			resultSet = selectStatement.executeQuery();// result should be 1.
 			if (resultSet.next()) {
-				sql = "update tle_tbl set card1 = ?, card2 = ? "
+				sql = "update tle_tbl set card1 = ?, card2 = ?, status = ? "
 						+ "where date = ? and noradcatalogid = ? ";
 				updateStatement = dbConnection.prepareStatement(sql);
 				updateStatement.setString(1, tleString.getLine1());
 				updateStatement.setString(2, tleString.getLine2());
+				updateStatement.setInt(3, tleString.getStatus());
 				updateStatement
-						.setDate(3, new Date(calendar.getTimeInMillis()));
-				updateStatement.setString(4, tleString.getNoradCatalogID());
+						.setDate(4, new Date(calendar.getTimeInMillis()));
+				updateStatement.setString(5, tleString.getNoradCatalogID());
 				updateStatement.execute();
 				System.out.println("db updated.");
 				updateStatement.close();
@@ -400,7 +402,7 @@ public class SpaceTrackWorker {
 		for (int i = 1; i < noradCatalogIDList.length; i++) {
 			sql += "OR noradCatalogID = ? ";
 		}
-		sql += ")";
+		sql += ") and status = 1";
 		PreparedStatement statement = dbConnection.prepareStatement(sql);
 		statement.setDate(1, new Date(calendar.getTimeInMillis()));
 		for (int i = 0; i < noradCatalogIDList.length; i++) {
