@@ -12,6 +12,8 @@ var map;
 var gnssString = "JE";
 var url_DateTime = "2014-03-01_00:00:00";
 var update_timeout = null;
+//var url_string = "localhost:8080";
+var url_string = "braincopy.org";
 
 /*
  * two dimensional array the number of trackCoordinatesArray[] is the number of
@@ -108,7 +110,7 @@ function initialize() {
 				}
 			}
 			gnssString = $('#sel1').val();
-			var url = "http://braincopy.org/gnssws/groundTrack?" + "dateTime="
+			var url = "http://"+url_string+"/gnssws/groundTrack?" + "dateTime="
 					+ url_DateTime + "&gnss=" + gnssString
 					+ "&format=jsonp&term=86400&step=900";
 			load_src(url);

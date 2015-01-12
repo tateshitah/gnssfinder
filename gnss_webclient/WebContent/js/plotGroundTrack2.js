@@ -12,6 +12,8 @@ var map;
 var gnssString = "JE";
 var url_DateTime = "2014-03-01_00:00:00";
 var update_timeout = null;
+// var url_string = "localhost:8080";
+var url_string = "braincopy.org";
 
 /*
  * two dimensional array the number of trackCoordinatesArray[] is the number of
@@ -43,7 +45,6 @@ var satArray = new Array();
 var satNo = new Array();
 
 var isDrawn = false;
-
 
 function initialize() {
 
@@ -96,25 +97,25 @@ function initialize() {
 	var url = location.href;
 	params = url.split("?");
 	paramms = params[1].split("=");
-	
+
 	/*
 	 * input check
 	 */
-	if(!paramms[1].match(/^[E-R]+$/)){
-		paramms[1]="J";
-		//alert("OK: "+paramms[1]);
+	if (!paramms[1].match(/^[E-R]+$/)) {
+		paramms[1] = "J";
+		// alert("OK: "+paramms[1]);
 	}
-	
-	if(!isDrawn){
+
+	if (!isDrawn) {
 		startPlot(paramms[1]);
 		isDrawn = true;
 	}
-	
+
 	/*
 	 * Event when click
 	 */
 	google.maps.event.addListener(map, 'click', function(event) {
-		if(!isDrawn){
+		if (!isDrawn) {
 			startPlot(paramms[1]);
 			isDrawn = true;
 		}
@@ -140,7 +141,9 @@ function initialize() {
 }
 
 function startPlot(gnssString) {
-    $("#loading").append('<p style="font-family:arial;color:red;">now loading <img src="res/drawable/loading.gif"></p>');
+	$("#loading")
+			.append(
+					'<p style="font-family:arial;color:red;">now loading <img src="res/drawable/loading.gif"></p>');
 	for (var i = 0; i < 20; i++) {
 		satNo[i] = 0;
 	}
@@ -153,7 +156,7 @@ function startPlot(gnssString) {
 				url_DateTime = url_Date_temp + "_" + url_Time_temp;
 			}
 		}
-		var url = "http://braincopy.org/gnssws/groundTrack?" + "dateTime="
+		var url = "http://" + url_string + "/gnssws/groundTrack?" + "dateTime="
 				+ url_DateTime + "&gnss=" + gnssString
 				+ "&format=jsonp&term=86400&step=900";
 		load_src(url);
@@ -217,7 +220,8 @@ function roadSatellite() {
 			}
 		}
 	};
-	//var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
+	// var url =
+	// 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
 	var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
