@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 
 			return true;
 		} else if (id == R.id.action_close) {
-			this.finish();
+			this.moveTaskToBack(true);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
