@@ -1,6 +1,12 @@
 package org.braincopy.gnssfinder;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -22,11 +28,15 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 /**
+ * This class will work for you to get any information related satellite from
+ * Internet.
  * 
  * @author Hiroaki Tateshita
+ * @version 0.3.0
  * 
  */
 public class SatelliteInfoWorker extends Thread {
@@ -41,10 +51,11 @@ public class SatelliteInfoWorker extends Thread {
 	static final int CONNECTED = 2;
 	static final int COMPLETED = 3;
 	static final int IMAGE_LOADED = 4;
-	static final int LOADING_IMAGES = 5;
+	// static final int LOADING_IMAGES = 5;
 	static final int INFORMATION_LOADED_WO_LOCATION = 6;
-	static final int LOCATION_UPDATED = 7;
-	static final int INFORMATION_LOADED_W_LOCATION = 8;
+
+	// static final int LOCATION_UPDATED = 7;
+	// static final int INFORMATION_LOADED_W_LOCATION = 8;
 
 	public SatelliteInfoWorker() {
 	}
@@ -104,10 +115,10 @@ public class SatelliteInfoWorker extends Thread {
 		HttpUriRequest getRequest = new HttpGet(builder.build().toString());
 
 		HttpResponse response = null;
+		int statusCode;
 		try {
 			response = client.execute(getRequest);
-			int statusCode = response.getStatusLine().getStatusCode();
-			// Log.i("hiro", "statusCode=" + statusCode);
+			statusCode = response.getStatusLine().getStatusCode();
 
 			Document doc = null;
 			if (statusCode == HttpStatus.SC_OK) {
@@ -119,11 +130,13 @@ public class SatelliteInfoWorker extends Thread {
 					DocumentBuilder docBuilder = factory.newDocumentBuilder();
 					doc = docBuilder.parse(entity.getContent());
 					createSatelliteArray(doc);
-					if (this.getStatus() == SatelliteInfoWorker.IMAGE_LOADED) {
-						setStatus(SatelliteInfoWorker.INFORMATION_LOADED_W_LOCATION);
-					} else {
-						setStatus(SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION);
-					}
+					// something strange. why image loaded?
+					// if (this.getStatus() == SatelliteInfoWorker.IMAGE_LOADED)
+					// {
+					// setStatus(SatelliteInfoWorker.INFORMATION_LOADED_W_LOCATION);
+					// } else {
+					setStatus(SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION);
+					// }
 				} catch (ParserConfigurationException e) {
 					Log.e("hiro", "context might be not expecting xml. " + e);
 					e.printStackTrace();
@@ -147,6 +160,58 @@ public class SatelliteInfoWorker extends Thread {
 			Log.e("error", "error when trying executing request.: " + e1);
 		} finally {
 
+		}
+
+		// from here, i will try to download satellite database text file
+		// temporary.
+		getRequest = new HttpGet(
+				"http://braincopy.org/WebContent/assets/satelliteDataBase.txt");
+		try {
+			response = client.execute(getRequest);
+			statusCode = response.getStatusLine().getStatusCode();
+
+			if (statusCode == HttpStatus.SC_OK) {
+				String strFolder = Environment
+						.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+						+ "/gnssfinder/";
+				File folder = new File(strFolder);
+				File file = new File(strFolder + "satelliteDataBase.txt");
+				if (!folder.exists()) {
+					folder.mkdir();
+				}
+				InputStream is;
+				try {
+					is = response.getEntity().getContent();
+					BufferedInputStream in = new BufferedInputStream(is, 1024);
+					BufferedOutputStream out;
+					file.createNewFile();
+					out = new BufferedOutputStream(new FileOutputStream(file,
+							false), 1024);
+					byte buf[] = new byte[1024];
+					int size = -1;
+					while ((size = in.read(buf)) != -1) {
+						out.write(buf, 0, size);
+					}
+					out.flush();
+					out.close();
+					in.close();
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+					Log.e("error", "error when trying executing request.: " + e);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+					Log.e("error", "error when trying executing request.: " + e);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+			Log.e("error", "error when trying executing request.: " + e);
+		} catch (IOException e) {
+			Log.e("error", "error when trying executing request.: " + e);
+			e.printStackTrace();
 		}
 	}
 
@@ -173,6 +238,5 @@ public class SatelliteInfoWorker extends Thread {
 
 	public void setGnssString(String gnssString_) {
 		this.gnssString = gnssString_;
-
 	}
 }

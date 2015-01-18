@@ -243,7 +243,7 @@ public class CameraFragment extends Fragment implements SensorEventListener,
 					arView.setSatellites(satellites);
 					arView.setStatus("getting location...");
 				}
-			} else if (worker.getStatus() == SatelliteInfoWorker.INFORMATION_LOADED_W_LOCATION) {
+			} else if (worker.getStatus() == SatelliteInfoWorker.IMAGE_LOADED) {
 				this.satellites = worker.getSatArray();
 				if (loadImages()) {
 					worker.setStatus(SatelliteInfoWorker.COMPLETED);

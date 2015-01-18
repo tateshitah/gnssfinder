@@ -1,6 +1,8 @@
 package org.braincopy.gnssfinder;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,14 +14,17 @@ import org.braincopy.silbala.ARActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.BitmapFactory;
 import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,7 +33,7 @@ import android.view.MenuItem;
  * a Activity class of for camera mode of GNSS Finder.
  * 
  * @author Hiroaki Tateshita
- * @version 0.2.0
+ * @version 0.2.5
  * 
  */
 public class CameraActivity extends ARActivity {
@@ -60,60 +65,19 @@ public class CameraActivity extends ARActivity {
 		}
 	}
 
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		// cameraView.stopPreviewAndFreeCamera();
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-	}
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		super.onSensorChanged(event);
-
-		if (worker != null) {
-			if (worker.getStatus() == SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION) {
-				this.satellites = worker.getSatArray();
-				if (loadImages()) {
-					worker.setStatus(SatelliteInfoWorker.IMAGE_LOADED);
-					gnssArView.setSatellites(satellites);
-					gnssArView.setStatus("getting location...");
-				}
-			} else if (worker.getStatus() == SatelliteInfoWorker.INFORMATION_LOADED_W_LOCATION) {
-				this.satellites = worker.getSatArray();
-				if (loadImages()) {
-					worker.setStatus(SatelliteInfoWorker.COMPLETED);
-					gnssArView.setSatellites(satellites);
-				}
-			}
-		}
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	private boolean loadImages() {
+	private boolean loadInformationFromNW() {
 		boolean result = false;
 		Resources resources = this.getResources();
 		InputStream is;
+		String strFolder = Environment
+				.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+				+ "/gnssfinder/";
+		File file = new File(strFolder + "satelliteDataBase.txt");
+
 		try {
-			AssetManager assetManager = resources.getAssets();
-			is = assetManager.open("satelliteDataBase.txt");
+			// AssetManager assetManager = resources.getAssets();
+			// is = assetManager.open("satelliteDataBase.txt");
+			is = new FileInputStream(file);
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			ArrayList<String[]> datalist = new ArrayList<String[]>();
 			String buf = null;
@@ -163,6 +127,157 @@ public class CameraActivity extends ARActivity {
 		}
 
 		return result;
+	}
+
+	/**
+	 * This method is to check the object of this class has the latest
+	 * information related to the satellites in the internal database or not. If
+	 * yes, return true. if no, return false.
+	 * 
+	 * This method might be used in the future.
+	 * 
+	 * @return
+	 */
+	private boolean checkInformation() {
+		boolean result = false;
+
+		return result;
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		// cameraView.stopPreviewAndFreeCamera();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		super.onSensorChanged(event);
+
+		if (worker != null) {
+			if (worker.getStatus() == SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION) {
+				this.satellites = worker.getSatArray();
+				loadImages();
+				worker.setStatus(SatelliteInfoWorker.IMAGE_LOADED);
+				gnssArView.setSatellites(satellites);
+				gnssArView.setStatus("getting location...");
+			} else if (worker.getStatus() == SatelliteInfoWorker.IMAGE_LOADED
+					&& this.isUsingGPS()) {
+				// in this moment, the satellite images should be already
+				// loaded. so just move to complete mode.
+				// this.satellites = worker.getSatArray();
+				// if (loadImages()) {
+				worker.setStatus(SatelliteInfoWorker.COMPLETED);
+				gnssArView.setStatus("completed to show satellites");
+				// gnssArView.setSatellites(satellites);
+				// }
+			}
+		}
+	}
+
+	/**
+	 * Load satellite images from satellite database information. If all
+	 * information is loaded successfully, this method return true, if not
+	 * return false.
+	 * 
+	 * @return
+	 */
+	private boolean loadImages() {
+		boolean result = false;
+
+		if (checkInformation()) {
+			result = loadInformationFromDB();// this method will be used in the
+												// future.
+		} else {
+			result = loadInformationFromNW();
+		}
+		return result;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private boolean loadInformationFromDB() {
+		boolean result = false;
+		Resources resources = this.getResources();
+		SQLiteOpenHelper helper = new MySQLiteOpenHelper(
+				getApplicationContext());
+		SQLiteDatabase sat_db = helper.getWritableDatabase();
+		String sql = "select norad_cat_id, image_name, description from satellite";
+		Cursor cursor = sat_db.rawQuery(sql, null);
+		cursor.moveToFirst();
+		String gnssStr = "";
+		while (cursor.moveToNext()) {
+			gnssStr = cursor.getString(1);
+			for (int i = 0; i < satellites.length; i++) {
+				if (satellites[i].getCatNo().equals(cursor.getString(0))) {
+					satellites[i].setDescription(cursor.getString(2));
+					if (gnssStr.equals("qzss")) {
+						satellites[i].setImage(BitmapFactory.decodeResource(
+								resources, R.drawable.qzss));
+					} else if (gnssStr.equals("galileo")) {
+						satellites[i].setImage(BitmapFactory.decodeResource(
+								resources, R.drawable.galileo));
+					} else if (gnssStr.equals("galileofoc")) {
+						satellites[i].setImage(BitmapFactory.decodeResource(
+								resources, R.drawable.galileofoc));
+					} else if (gnssStr.equals("gpsBlockIIF")) {
+						satellites[i].setImage(BitmapFactory.decodeResource(
+								resources, R.drawable.iif));
+					}
+					break;
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private static class MySQLiteOpenHelper extends SQLiteOpenHelper {
+		/**
+		 * If DB_NAME is not null, the data will be saved in the device with its
+		 * file name.
+		 */
+		static String DB_NAME = "satellite.database";
+		static int DB_VERSION = 1;
+		static final String CREATE_TABLE = "create table satellite ( norad_cat_id text primary key, rinex_id text, image_name text not null, description text );";
+		static final String DROP_TABLE = "drop table satellite;";
+
+		/**
+		 * 
+		 * @param c
+		 */
+		public MySQLiteOpenHelper(Context c) {
+			super(c, DB_NAME, null, DB_VERSION);
+		}
+
+		/**
+		 * if the data base file already exists, this method will not be called.
+		 */
+		public void onCreate(SQLiteDatabase db) {
+			db.execSQL(CREATE_TABLE);
+		}
+
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			db.execSQL(DROP_TABLE);
+			onCreate(db);
+		}
 	}
 
 	private String getSatInfo(String catNo, ArrayList<String[]> datalist) {
