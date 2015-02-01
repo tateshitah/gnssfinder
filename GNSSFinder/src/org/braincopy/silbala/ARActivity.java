@@ -41,7 +41,7 @@ import android.widget.ImageButton;
  * Call me maybe, Royals, Grace Kelly
  * 
  * @author Hiroaki Tateshita
- * @version 0.3.0
+ * @version 0.4.4
  * 
  */
 public class ARActivity extends Activity implements SensorEventListener,
@@ -58,6 +58,14 @@ public class ARActivity extends Activity implements SensorEventListener,
 	private GeomagneticField geomagneticField;
 	CameraCallbackImpl callbackImple;
 	private boolean isUsingGPS = false;
+
+	/**
+	 * flag to show the AR Object is touched or not. it should be in ARObject
+	 * class?
+	 */
+	public boolean[] touchedFlags;
+
+	public final float TOUCH_AREA_SIZE = 150;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -208,12 +216,24 @@ public class ARActivity extends Activity implements SensorEventListener,
 
 	}
 
+	/**
+	 * 
+	 * @param arview_
+	 */
 	public void setARView(ARView arview_) {
 		this.arView = arview_;
 		callbackImple.setOverlayView(arView);
 		addContentView(arView, new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.MATCH_PARENT));
 
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public ARView getARView() {
+		return this.arView;
 	}
 
 }

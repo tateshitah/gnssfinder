@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.braincopy.silbala.ARActivity;
+import org.braincopy.silbala.ARObjectDialog;
+import org.braincopy.silbala.Point;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +30,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 
 /**
  * a Activity class of for camera mode of GNSS Finder.
@@ -176,6 +179,10 @@ public class CameraActivity extends ARActivity {
 				worker.setStatus(SatelliteInfoWorker.IMAGE_LOADED);
 				gnssArView.setSatellites(satellites);
 				gnssArView.setStatus("getting location...");
+				this.touchedFlags = new boolean[this.satellites.length];
+				for (int i = 0; i < this.touchedFlags.length; i++) {
+					this.touchedFlags[i] = false;
+				}
 			} else if (worker.getStatus() == SatelliteInfoWorker.IMAGE_LOADED
 					&& this.isUsingGPS()) {
 				// in this moment, the satellite images should be already
@@ -349,5 +356,36 @@ public class CameraActivity extends ARActivity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		float x, y;
+		x = event.getX();
+		y = event.getY();
+		// ARObject[] arObjs_ = ((Sample4ARView) this.getARView()).arObjs;
+		for (int i = 0; i < satellites.length; i++) {
+			Point point = satellites[i].getPoint();
+			if (point != null) {
+				if (Math.abs(x - point.x) < TOUCH_AREA_SIZE
+						&& Math.abs(y - point.y) < TOUCH_AREA_SIZE
+						&& !touchedFlags[i]) {
+					touchedFlags[i] = true;
+
+					String message = "This is sample 4 alert dialog! "
+							+ "ARObjs[" + i + "] was at (" + point.x + ", "
+							+ point.y + ") and you touched (" + x + ", " + y
+							+ ")";
+					ARObjectDialog dialog2 = new ARObjectDialog();
+					Bundle args = new Bundle();
+					args.putString("message", message);
+					args.putInt("index", i + 1);
+					dialog2.setArguments(args);
+					dialog2.show(getFragmentManager(), "tag?");
+				}
+			}
+
+		}
+		return super.onTouchEvent(event);
 	}
 }

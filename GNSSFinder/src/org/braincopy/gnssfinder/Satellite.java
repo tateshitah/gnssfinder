@@ -1,9 +1,9 @@
 package org.braincopy.gnssfinder;
 
+import org.braincopy.silbala.ARObject;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 /**
@@ -11,10 +11,10 @@ import android.graphics.BitmapFactory;
  * application.
  * 
  * @author Hiroaki Tateshita
+ * @version 0.7.0
  * 
  */
-public class Satellite {
-	private Bitmap image;
+public class Satellite extends ARObject {
 
 	/**
 	 * 0-360 [degree] east 0, south 90, west 180, north 270
@@ -41,14 +41,6 @@ public class Satellite {
 
 	Satellite() {
 
-	}
-
-	public Bitmap getImage() {
-		return image;
-	}
-
-	public void setImage(Bitmap image) {
-		this.image = image;
 	}
 
 	public float getAzimuth() {

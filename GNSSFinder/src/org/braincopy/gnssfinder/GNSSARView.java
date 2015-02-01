@@ -57,6 +57,7 @@ public class GNSSARView extends ARView {
 			for (int i = 0; i < satellites.length; i++) {
 				point = convertAzElPoint(satellites[i].getAzimuth(),
 						satellites[i].getElevation());
+				satellites[i].setPoint(point);
 				if (satellites[i].getImage() != null && point != null) {
 					matrix.postTranslate(point.x, point.y);
 					canvas.drawBitmap(satellites[i].getImage(), matrix, paint);
