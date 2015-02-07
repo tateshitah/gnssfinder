@@ -12,7 +12,7 @@ import android.graphics.Paint;
 /**
  * 
  * @author Hiroaki Tateshita
- * @version 0.0.1
+ * @version 0.7.1
  * 
  */
 public class GNSSARView extends ARView {
@@ -55,15 +55,18 @@ public class GNSSARView extends ARView {
 		matrix.postScale(scale, scale);
 		if (this.satellites != null) {
 			for (int i = 0; i < satellites.length; i++) {
-				point = convertAzElPoint(satellites[i].getAzimuth(),
-						satellites[i].getElevation());
-				satellites[i].setPoint(point);
-				if (satellites[i].getImage() != null && point != null) {
-					matrix.postTranslate(point.x, point.y);
-					canvas.drawBitmap(satellites[i].getImage(), matrix, paint);
-					canvas.drawText(satellites[i].getDescription(),
-							point.x + 30, point.y, paint);
-					matrix.postTranslate(-point.x, -point.y);
+				if (satellites[i] != null) {
+					point = convertAzElPoint(satellites[i].getAzimuth(),
+							satellites[i].getElevation());
+					satellites[i].setPoint(point);
+					if (satellites[i].getImage() != null && point != null) {
+						matrix.postTranslate(point.x, point.y);
+						canvas.drawBitmap(satellites[i].getImage(), matrix,
+								paint);
+						canvas.drawText(satellites[i].getDescription(),
+								point.x + 30, point.y, paint);
+						matrix.postTranslate(-point.x, -point.y);
+					}
 				}
 			}
 		}

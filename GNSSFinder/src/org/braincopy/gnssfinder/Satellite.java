@@ -4,6 +4,7 @@ import org.braincopy.silbala.ARObject;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 /**
@@ -11,7 +12,7 @@ import android.graphics.BitmapFactory;
  * application.
  * 
  * @author Hiroaki Tateshita
- * @version 0.7.0
+ * @version 0.7.1
  * 
  */
 public class Satellite extends ARObject {
@@ -28,6 +29,11 @@ public class Satellite extends ARObject {
 
 	private String catNo;
 	private String description;
+
+	/**
+	 * such as "gzss", "galileo", "galileofoc", "gpsBlockIIF"
+	 */
+	private String gnssStr;
 
 	Satellite(Context context) {
 		/*
@@ -82,4 +88,38 @@ public class Satellite extends ARObject {
 		this.description = description;
 	}
 
+	@Override
+	public String toString() {
+		return this.catNo;
+	}
+
+	public String getGnssStr() {
+		return gnssStr;
+	}
+
+	public void setGnssStr(String gnssStr) {
+		this.gnssStr = gnssStr;
+	}
+
+	/**
+	 * 
+	 * @param gnssStr
+	 * @param resources
+	 * @return
+	 */
+	public static Bitmap getGNSSImage(String gnssStr, Resources resources) {
+		Bitmap result = null;
+		if (gnssStr.equals("qzss")) {
+			result = BitmapFactory.decodeResource(resources, R.drawable.qzss);
+		} else if (gnssStr.equals("galileo")) {
+			result = BitmapFactory
+					.decodeResource(resources, R.drawable.galileo);
+		} else if (gnssStr.equals("galileofoc")) {
+			result = BitmapFactory.decodeResource(resources,
+					R.drawable.galileofoc);
+		} else if (gnssStr.equals("gpsBlockIIF")) {
+			result = BitmapFactory.decodeResource(resources, R.drawable.iif);
+		}
+		return result;
+	}
 }

@@ -36,7 +36,7 @@ import android.view.MotionEvent;
  * a Activity class of for camera mode of GNSS Finder.
  * 
  * @author Hiroaki Tateshita
- * @version 0.2.5
+ * @version 0.7.1
  * 
  */
 public class CameraActivity extends ARActivity {
@@ -66,70 +66,6 @@ public class CameraActivity extends ARActivity {
 			worker.setStatus(SatelliteInfoWorker.CONNECTED);
 			gnssArView.setStatus("connected");
 		}
-	}
-
-	private boolean loadInformationFromNW() {
-		boolean result = false;
-		Resources resources = this.getResources();
-		InputStream is;
-		String strFolder = Environment
-				.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-				+ "/gnssfinder/";
-		File file = new File(strFolder + "satelliteDataBase.txt");
-
-		try {
-			// AssetManager assetManager = resources.getAssets();
-			// is = assetManager.open("satelliteDataBase.txt");
-			is = new FileInputStream(file);
-			BufferedReader br = new BufferedReader(new InputStreamReader(is));
-			ArrayList<String[]> datalist = new ArrayList<String[]>();
-			String buf = null;
-			try {
-				while ((buf = br.readLine()) != null) {
-					datalist.add(buf.split("\t"));
-				}
-				String gnssStr = "";
-				for (int i = 0; i < satellites.length; i++) {
-					gnssStr = getGnssStr(satellites[i].getCatNo(), datalist);
-					if (gnssStr != null) {
-						satellites[i].setDescription(getSatInfo(
-								satellites[i].getCatNo(), datalist));
-						if (gnssStr.equals("qzss")) {
-							satellites[i]
-									.setImage(BitmapFactory.decodeResource(
-											resources, R.drawable.qzss));
-						} else if (gnssStr.equals("galileo")) {
-							satellites[i].setImage(BitmapFactory
-									.decodeResource(resources,
-											R.drawable.galileo));
-						} else if (gnssStr.equals("galileofoc")) {
-							satellites[i].setImage(BitmapFactory
-									.decodeResource(resources,
-											R.drawable.galileofoc));
-						} else if (gnssStr.equals("gpsBlockIIF")) {
-							satellites[i].setImage(BitmapFactory
-									.decodeResource(resources, R.drawable.iif));
-						}
-					}
-				}
-				result = true;
-			} catch (IOException e) {
-				Log.e("hiro",
-						"failed when to read a line of the satellite database text file."
-								+ e);
-				e.printStackTrace();
-			}
-			is.close();
-			br.close();
-		} catch (FileNotFoundException e) {
-			Log.e("hiro", "" + e);
-			e.printStackTrace();
-		} catch (IOException e1) {
-			Log.e("hiro", "" + e1);
-			e1.printStackTrace();
-		}
-
-		return result;
 	}
 
 	/**
@@ -213,6 +149,73 @@ public class CameraActivity extends ARActivity {
 		} else {
 			result = loadInformationFromNW();
 		}
+		return result;
+	}
+
+	private boolean loadInformationFromNW() {
+		boolean result = false;
+		Resources resources = this.getResources();
+		InputStream is;
+		String strFolder = Environment
+				.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+				+ "/gnssfinder/";
+		File file = new File(strFolder + "satelliteDataBase.txt");
+
+		try {
+			// AssetManager assetManager = resources.getAssets();
+			// is = assetManager.open("satelliteDataBase.txt");
+			is = new FileInputStream(file);
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			ArrayList<String[]> datalist = new ArrayList<String[]>();
+			String buf = null;
+			try {
+				while ((buf = br.readLine()) != null) {
+					datalist.add(buf.split("\t"));
+				}
+				String gnssStr = "";
+				for (int i = 0; i < satellites.length; i++) {
+					gnssStr = getGnssStr(satellites[i].getCatNo(), datalist);
+					if (gnssStr != null) {
+						satellites[i].setDescription(getSatInfo(
+								satellites[i].getCatNo(), datalist));
+						satellites[i].setImage(Satellite.getGNSSImage(gnssStr,
+								resources));
+						satellites[i].setGnssStr(gnssStr);
+						/*
+						 * if (gnssStr.equals("qzss")) { satellites[i]
+						 * .setImage(BitmapFactory.decodeResource( resources,
+						 * R.drawable.qzss)); } else if
+						 * (gnssStr.equals("galileo")) {
+						 * satellites[i].setImage(BitmapFactory
+						 * .decodeResource(resources, R.drawable.galileo)); }
+						 * else if (gnssStr.equals("galileofoc")) {
+						 * satellites[i].setImage(BitmapFactory
+						 * .decodeResource(resources, R.drawable.galileofoc)); }
+						 * else if (gnssStr.equals("gpsBlockIIF")) {
+						 * satellites[i].setImage(BitmapFactory
+						 * .decodeResource(resources, R.drawable.iif)); }
+						 */
+					} else {
+						satellites[i] = null;
+					}
+				}
+				result = true;
+			} catch (IOException e) {
+				Log.e("hiro",
+						"failed when to read a line of the satellite database text file."
+								+ e);
+				e.printStackTrace();
+			}
+			is.close();
+			br.close();
+		} catch (FileNotFoundException e) {
+			Log.e("hiro", "" + e);
+			e.printStackTrace();
+		} catch (IOException e1) {
+			Log.e("hiro", "" + e1);
+			e1.printStackTrace();
+		}
+
 		return result;
 	}
 
@@ -363,28 +366,30 @@ public class CameraActivity extends ARActivity {
 		float x, y;
 		x = event.getX();
 		y = event.getY();
-		// ARObject[] arObjs_ = ((Sample4ARView) this.getARView()).arObjs;
-		for (int i = 0; i < satellites.length; i++) {
-			Point point = satellites[i].getPoint();
-			if (point != null) {
-				if (Math.abs(x - point.x) < TOUCH_AREA_SIZE
-						&& Math.abs(y - point.y) < TOUCH_AREA_SIZE
-						&& !touchedFlags[i]) {
-					touchedFlags[i] = true;
+		if (satellites != null) {
+			for (int i = 0; i < satellites.length; i++) {
+				if (satellites[i] != null) {
+					Point point = satellites[i].getPoint();
+					if (point != null) {
+						if (Math.abs(x - point.x) < TOUCH_AREA_SIZE
+								&& Math.abs(y - point.y) < TOUCH_AREA_SIZE
+								&& !touchedFlags[i]) {
+							touchedFlags[i] = true;
 
-					String message = "This is sample 4 alert dialog! "
-							+ "ARObjs[" + i + "] was at (" + point.x + ", "
-							+ point.y + ") and you touched (" + x + ", " + y
-							+ ")";
-					ARObjectDialog dialog2 = new ARObjectDialog();
-					Bundle args = new Bundle();
-					args.putString("message", message);
-					args.putInt("index", i + 1);
-					dialog2.setArguments(args);
-					dialog2.show(getFragmentManager(), "tag?");
+							String message = satellites[i].getDescription();
+							ARObjectDialog dialog2 = new SatelliteDialog();
+							Bundle args = new Bundle();
+							args.putString("message", message);
+							args.putInt("index", i + 1);
+							args.putString("catNo", satellites[i].getCatNo());
+							args.putString("gnssStr",
+									satellites[i].getGnssStr());
+							dialog2.setArguments(args);
+							dialog2.show(getFragmentManager(), "tag?");
+						}
+					}
 				}
 			}
-
 		}
 		return super.onTouchEvent(event);
 	}

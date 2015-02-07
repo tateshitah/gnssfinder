@@ -1,0 +1,39 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#88000000"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/catNoTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="#ffff0000" />
+
+    <ImageView
+        android:id="@+id/satelliteImageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@string/title_description"
+        android:src="@drawable/ic_launcher" />
+
+    <TextView
+        android:id="@+id/arObjDialogTextView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="#ffff0000" />
+
+    <Button
+        android:id="@+id/arObjDialogButton1"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/ok_button"
+        android:textColor="#ffff0000" />
+    
+</LinearLayout>
