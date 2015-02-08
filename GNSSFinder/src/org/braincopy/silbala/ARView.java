@@ -10,7 +10,7 @@ import android.view.View;
  * Please extend this class to create your ARView and override onDraw() method.
  * 
  * @author Hiroaki Tateshita
- * @version 0.3.0
+ * @version 0.4.6
  * 
  */
 public class ARView extends View {
@@ -81,6 +81,12 @@ public class ARView extends View {
 	 * radius of the earth. [m]
 	 */
 	public static final double RADIUS_OF_EARTH = 6378137.0;
+
+	/**
+	 * array of AR Objects. When you want to use these objects, please create
+	 * them by yourself. They will not be created automatically.
+	 */
+	protected ARObject[] arObjs;
 
 	public ARView(Context context) {
 		super(context);
@@ -427,6 +433,10 @@ public class ARView extends View {
 	public void setStatus(String string) {
 		this.statusString = string;
 
+	}
+
+	public ARObject[] getArObjs() {
+		return arObjs;
 	}
 
 	public void updateScreenPlane() {

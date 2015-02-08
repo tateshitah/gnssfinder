@@ -36,7 +36,7 @@ import android.util.Log;
  * Internet.
  * 
  * @author Hiroaki Tateshita
- * @version 0.3.0
+ * @version 0.7.2
  * 
  */
 public class SatelliteInfoWorker extends Thread {
@@ -68,6 +68,7 @@ public class SatelliteInfoWorker extends Thread {
 		for (int i = 0; i < satObsList.getLength(); i++) {
 			satObs = satObsList.item(i).getChildNodes();
 			result[i] = new Satellite();
+			result[i].setTouched(false);
 
 			for (int k = 0; k < satObs.getLength(); k++) {
 				if (satObs.item(k).getNodeName().equals("ObType")) {

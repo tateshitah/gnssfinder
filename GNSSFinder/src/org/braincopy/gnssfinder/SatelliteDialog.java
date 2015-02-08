@@ -15,6 +15,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/**
+ * 
+ * @author Hiroaki Tateshita
+ * @version 0.7.2
+ * 
+ */
 public class SatelliteDialog extends ARObjectDialog {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -35,7 +41,8 @@ public class SatelliteDialog extends ARObjectDialog {
 					.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							((ARActivity) getActivity()).touchedFlags[index - 1] = false;
+							((ARActivity) getActivity()).getARView()
+									.getArObjs()[index - 1].setTouched(false);
 							dismiss();
 						}
 					});

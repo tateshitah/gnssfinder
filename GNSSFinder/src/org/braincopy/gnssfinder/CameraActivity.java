@@ -36,10 +36,11 @@ import android.view.MotionEvent;
  * a Activity class of for camera mode of GNSS Finder.
  * 
  * @author Hiroaki Tateshita
- * @version 0.7.1
+ * @version 0.7.2
  * 
  */
 public class CameraActivity extends ARActivity {
+	float gapBtwnWindowAndView;
 
 	private GNSSARView gnssArView;
 	// private float lat, lon;
@@ -115,10 +116,10 @@ public class CameraActivity extends ARActivity {
 				worker.setStatus(SatelliteInfoWorker.IMAGE_LOADED);
 				gnssArView.setSatellites(satellites);
 				gnssArView.setStatus("getting location...");
-				this.touchedFlags = new boolean[this.satellites.length];
-				for (int i = 0; i < this.touchedFlags.length; i++) {
-					this.touchedFlags[i] = false;
-				}
+				// this.touchedFlags = new boolean[this.satellites.length];
+				// for (int i = 0; i < this.touchedFlags.length; i++) {
+				// this.touchedFlags[i] = false;
+				// }
 			} else if (worker.getStatus() == SatelliteInfoWorker.IMAGE_LOADED
 					&& this.isUsingGPS()) {
 				// in this moment, the satellite images should be already
@@ -364,8 +365,12 @@ public class CameraActivity extends ARActivity {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		float x, y;
+		if (this.gapBtwnWindowAndView == 0) {
+			gapBtwnWindowAndView = getWindow().getDecorView().getHeight()
+					- getARView().getHeight();
+		}
 		x = event.getX();
-		y = event.getY();
+		y = event.getY() - gapBtwnWindowAndView;
 		if (satellites != null) {
 			for (int i = 0; i < satellites.length; i++) {
 				if (satellites[i] != null) {
@@ -373,8 +378,8 @@ public class CameraActivity extends ARActivity {
 					if (point != null) {
 						if (Math.abs(x - point.x) < TOUCH_AREA_SIZE
 								&& Math.abs(y - point.y) < TOUCH_AREA_SIZE
-								&& !touchedFlags[i]) {
-							touchedFlags[i] = true;
+								&& !satellites[i].isTouched()) {
+							satellites[i].setTouched(true);
 
 							String message = satellites[i].getDescription();
 							ARObjectDialog dialog2 = new SatelliteDialog();

@@ -12,12 +12,12 @@ import android.graphics.Paint;
 /**
  * 
  * @author Hiroaki Tateshita
- * @version 0.7.1
+ * @version 0.7.2
  * 
  */
 public class GNSSARView extends ARView {
 
-	private Satellite[] satellites;
+	// private Satellite[] satellites;
 
 	public GNSSARView(Context context) {
 		super(context);
@@ -48,24 +48,34 @@ public class GNSSARView extends ARView {
 	 * @param paint
 	 */
 	private void drawSatellites(Canvas canvas, Paint paint) {
-		// float dx = 0;
-		// float dy = 0;
+		float dx = 0;
+		float dy = 0;
 		Matrix matrix = new Matrix();
 		float scale = 1.0f;
 		matrix.postScale(scale, scale);
-		if (this.satellites != null) {
-			for (int i = 0; i < satellites.length; i++) {
-				if (satellites[i] != null) {
-					point = convertAzElPoint(satellites[i].getAzimuth(),
-							satellites[i].getElevation());
-					satellites[i].setPoint(point);
-					if (satellites[i].getImage() != null && point != null) {
-						matrix.postTranslate(point.x, point.y);
-						canvas.drawBitmap(satellites[i].getImage(), matrix,
-								paint);
-						canvas.drawText(satellites[i].getDescription(),
+		// if (this.satellites != null) {
+		if (this.arObjs != null) {
+			// for (int i = 0; i < satellites.length; i++) {
+			for (int i = 0; i < arObjs.length; i++) {
+				// if (satellites[i] != null) {
+				if (arObjs[i] != null) {
+					dx = arObjs[i].getImage().getWidth() / 2 * scale;
+					dy = arObjs[i].getImage().getHeight() / 2 * scale;
+					// point = convertAzElPoint(satellites[i].getAzimuth(),
+					// satellites[i].getElevation());
+					point = convertAzElPoint(
+							((Satellite) arObjs[i]).getAzimuth(),
+							((Satellite) arObjs[i]).getElevation());
+					((Satellite) arObjs[i]).setPoint(point);
+					if (((Satellite) arObjs[i]).getImage() != null
+							&& point != null) {
+						matrix.postTranslate(point.x - dx, point.y - dy);
+						canvas.drawBitmap(((Satellite) arObjs[i]).getImage(),
+								matrix, paint);
+						canvas.drawText(
+								((Satellite) arObjs[i]).getDescription(),
 								point.x + 30, point.y, paint);
-						matrix.postTranslate(-point.x, -point.y);
+						matrix.postTranslate(-point.x + dx, -point.y + dy);
 					}
 				}
 			}
@@ -73,11 +83,12 @@ public class GNSSARView extends ARView {
 	}
 
 	public Satellite[] getSatellites() {
-		return satellites;
+		return (Satellite[]) arObjs;
 	}
 
 	public void setSatellites(Satellite[] satellites) {
-		this.satellites = satellites;
+		// this.satellites = satellites;
+		this.arObjs = satellites;
 	}
 
 }
