@@ -14,8 +14,10 @@ import org.braincopy.silbala.ARActivity;
 import org.braincopy.silbala.ARObjectDialog;
 import org.braincopy.silbala.Point;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,7 +38,7 @@ import android.view.MotionEvent;
  * a Activity class of for camera mode of GNSS Finder.
  * 
  * @author Hiroaki Tateshita
- * @version 0.7.2
+ * @version 0.7.3
  * 
  */
 public class CameraActivity extends ARActivity {
@@ -46,10 +48,21 @@ public class CameraActivity extends ARActivity {
 	// private float lat, lon;
 	private Satellite[] satellites;
 	private SatelliteInfoWorker worker;
+	/**
+	 * a kind of hashtable for saving setting information.
+	 */
+	private SharedPreferences pref;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		pref = getSharedPreferences("gnssfinder", Activity.MODE_PRIVATE);
+		this.setUsingGPS(pref.getBoolean("usingGPS", false));
+		this.lat = pref.getFloat("defaultLat", 35.660994f);
+		this.lon = pref.getFloat("defaultLon", 139.677619f);
+		this.alt = pref.getFloat("defaultAlt", 0f);
+
 		gnssArView = new GNSSARView(this);
 
 		this.setARView(gnssArView);

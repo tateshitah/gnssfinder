@@ -14,5 +14,10 @@
     <string name="ok_button">OK</string>
     <string name="cancel_button">Cancel</string>
     <string name="camera_icon">camera icon</string>
+    <string name="usingGPSLabel">Using GPS</string>
+    <string name="locationLabel">User Location</string>
+    <string name="label_latitude">Latitude[deg]</string>
+    <string name="label_longitude">Longitude[deg]</string>
+    <string name="label_altitude">Altitude[m]</string>
     
 </resources>

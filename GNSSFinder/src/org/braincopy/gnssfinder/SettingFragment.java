@@ -9,17 +9,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.Switch;
 
 /**
  * Setting page of this application has following functions:
  * <ul>
- * <li>GNSS</li>
- * <li>Location Information (developing)</li>
+ * <li>GNSS Selection</li>
+ * <li>User Location</li>
  * <li>Camera on off (developing)</li>
  * </ul>
  * 
  * @author Hiroaki Tateshita
+ * @version 0.7.3
  * 
  */
 public class SettingFragment extends Fragment {
@@ -57,6 +61,43 @@ public class SettingFragment extends Fragment {
 				.findViewById(R.id.qzssSwitch);
 		qzssSwitch.setChecked(isQzss);
 
+		float defaultLat = pref.getFloat("defaultLat", 0);
+		final EditText latitudeTextView = (EditText) rootView
+				.findViewById(R.id.latEditText1);
+		latitudeTextView.setText(String.valueOf(defaultLat));
+
+		float defaultLon = pref.getFloat("defaultLon", 0);
+		final EditText longitudeTextView = (EditText) rootView
+				.findViewById(R.id.lonEditText01);
+		longitudeTextView.setText(String.valueOf(defaultLon));
+
+		float defaultAlt = pref.getFloat("defaultAlt", 0);
+		final EditText altitudeTextView = (EditText) rootView
+				.findViewById(R.id.altitudeEditText);
+		altitudeTextView.setText(String.valueOf(defaultAlt));
+
+		boolean usingGPS = pref.getBoolean("usingGPS", false);
+		final Switch usingGPSSwitch = (Switch) rootView
+				.findViewById(R.id.usingGPSSwitch01);
+		usingGPSSwitch.setChecked(usingGPS);
+		usingGPSSwitch
+				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						latitudeTextView.setFocusable(!isChecked);
+						latitudeTextView.setFocusableInTouchMode(!isChecked);
+						longitudeTextView.setFocusable(!isChecked);
+						longitudeTextView.setFocusableInTouchMode(!isChecked);
+						altitudeTextView.setFocusable(!isChecked);
+						altitudeTextView.setFocusableInTouchMode(!isChecked);
+					}
+				});
+		latitudeTextView.setFocusable(!usingGPS);
+		longitudeTextView.setFocusable(!usingGPS);
+		altitudeTextView.setFocusable(!usingGPS);
+
 		/*
 		 * OK button
 		 */
@@ -69,6 +110,13 @@ public class SettingFragment extends Fragment {
 				editor.putBoolean("gpsBlockIIF", gpsBlockIIFSwitch.isChecked());
 				editor.putBoolean("galileo", galileoSwitch.isChecked());
 				editor.putBoolean("qzss", qzssSwitch.isChecked());
+				editor.putBoolean("usingGPS", usingGPSSwitch.isChecked());
+				editor.putFloat("defaultLat",
+						Float.parseFloat(latitudeTextView.getText().toString()));
+				editor.putFloat("defaultLon", Float
+						.parseFloat(longitudeTextView.getText().toString()));
+				editor.putFloat("defaultAlt",
+						Float.parseFloat(altitudeTextView.getText().toString()));
 				editor.commit();
 
 				goBackToHome();

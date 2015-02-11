@@ -41,7 +41,7 @@ import android.widget.ImageButton;
  * Call me maybe, Royals, Grace Kelly
  * 
  * @author Hiroaki Tateshita
- * @version 0.4.6
+ * @version 0.4.7
  * 
  */
 public class ARActivity extends Activity implements SensorEventListener,
@@ -54,7 +54,7 @@ public class ARActivity extends Activity implements SensorEventListener,
 
 	private ARView arView;
 	private LocationManager locationManager;
-	public float lat, lon;
+	public float lat, lon, alt;
 	private GeomagneticField geomagneticField;
 	CameraCallbackImpl callbackImple;
 	private boolean isUsingGPS = false;
@@ -98,6 +98,7 @@ public class ARActivity extends Activity implements SensorEventListener,
 
 		lat = (float) 35.660994;
 		lon = (float) 139.677619;
+		alt = (float) 0.0f;
 
 	}
 
@@ -125,9 +126,11 @@ public class ARActivity extends Activity implements SensorEventListener,
 	@Override
 	protected void onResume() {
 		super.onResume();
-		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-				0, this);
+		if (isUsingGPS) {
+			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+			locationManager.requestLocationUpdates(
+					LocationManager.GPS_PROVIDER, 0, 0, this);
+		}
 		sensorManager.registerListener(this, listMag.get(0),
 				SensorManager.SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(this, listAcc.get(0),
@@ -138,7 +141,9 @@ public class ARActivity extends Activity implements SensorEventListener,
 	@Override
 	public void onStop() {
 		super.onStop();
-		locationManager.removeUpdates(this);
+		if (isUsingGPS) {
+			locationManager.removeUpdates(this);
+		}
 		sensorManager.unregisterListener(this);
 		this.isUsingGPS = false;
 
@@ -196,6 +201,10 @@ public class ARActivity extends Activity implements SensorEventListener,
 
 	public boolean isUsingGPS() {
 		return isUsingGPS;
+	}
+
+	public void setUsingGPS(boolean usingGPS_) {
+		this.isUsingGPS = usingGPS_;
 	}
 
 	@Override
