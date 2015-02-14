@@ -18,7 +18,7 @@ import android.widget.TextView;
 /**
  * 
  * @author Hiroaki Tateshita
- * @version 0.7.2
+ * @version 0.7.4
  * 
  */
 public class SatelliteDialog extends ARObjectDialog {
@@ -62,6 +62,10 @@ public class SatelliteDialog extends ARObjectDialog {
 			((ImageView) dialog.findViewById(R.id.satelliteImageView1))
 					.setImageBitmap(Satellite.getGNSSImage(gnssString,
 							getResources()));
+		}
+		String name = getArguments().getString("name");
+		if (name != null) {
+			((TextView) dialog.findViewById(R.id.nameTextView1)).setText(name);
 		}
 		return dialog;
 	}

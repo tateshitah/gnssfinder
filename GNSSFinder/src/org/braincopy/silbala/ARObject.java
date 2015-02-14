@@ -3,10 +3,11 @@ package org.braincopy.silbala;
 import android.graphics.Bitmap;
 
 /**
- * class for AR Object
+ * class for AR Object, which has information showed on the display of android
+ * device.
  * 
  * @author Hiroaki Tateshita
- * @version 0.4.7
+ * @version 0.4.8
  * 
  */
 public class ARObject {
@@ -14,7 +15,12 @@ public class ARObject {
 
 	private Point point;
 
+	/**
+	 * for touch event
+	 */
 	private boolean touched;
+
+	private String objName;
 
 	/**
 	 * 
@@ -47,5 +53,13 @@ public class ARObject {
 
 	public void setTouched(boolean touched) {
 		this.touched = touched;
+	}
+
+	public String getObjName() {
+		return objName;
+	}
+
+	public void setObjName(String name) {
+		this.objName = name;
 	}
 }

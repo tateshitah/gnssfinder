@@ -38,7 +38,7 @@ import android.view.MotionEvent;
  * a Activity class of for camera mode of GNSS Finder.
  * 
  * @author Hiroaki Tateshita
- * @version 0.7.3
+ * @version 0.7.4
  * 
  */
 public class CameraActivity extends ARActivity {
@@ -194,21 +194,10 @@ public class CameraActivity extends ARActivity {
 								satellites[i].getCatNo(), datalist));
 						satellites[i].setImage(Satellite.getGNSSImage(gnssStr,
 								resources));
+						satellites[i].setObjName(getSatName(
+								satellites[i].getCatNo(), datalist));
 						satellites[i].setGnssStr(gnssStr);
-						/*
-						 * if (gnssStr.equals("qzss")) { satellites[i]
-						 * .setImage(BitmapFactory.decodeResource( resources,
-						 * R.drawable.qzss)); } else if
-						 * (gnssStr.equals("galileo")) {
-						 * satellites[i].setImage(BitmapFactory
-						 * .decodeResource(resources, R.drawable.galileo)); }
-						 * else if (gnssStr.equals("galileofoc")) {
-						 * satellites[i].setImage(BitmapFactory
-						 * .decodeResource(resources, R.drawable.galileofoc)); }
-						 * else if (gnssStr.equals("gpsBlockIIF")) {
-						 * satellites[i].setImage(BitmapFactory
-						 * .decodeResource(resources, R.drawable.iif)); }
-						 */
+
 					} else {
 						satellites[i] = null;
 					}
@@ -304,13 +293,26 @@ public class CameraActivity extends ARActivity {
 		}
 	}
 
-	private String getSatInfo(String catNo, ArrayList<String[]> datalist) {
+	private String getSatName(String catNo, ArrayList<String[]> datalist) {
 		String result = null;
 		String[] tmpStrArray = null;
 		for (int i = 0; i < datalist.size(); i++) {
 			tmpStrArray = datalist.get(i);
 			if (catNo.equals(tmpStrArray[0])) {
 				result = tmpStrArray[3];
+				break;
+			}
+		}
+		return result;
+	}
+
+	private String getSatInfo(String catNo, ArrayList<String[]> datalist) {
+		String result = null;
+		String[] tmpStrArray = null;
+		for (int i = 0; i < datalist.size(); i++) {
+			tmpStrArray = datalist.get(i);
+			if (catNo.equals(tmpStrArray[0])) {
+				result = tmpStrArray[1];
 				break;
 			}
 		}
@@ -402,6 +404,7 @@ public class CameraActivity extends ARActivity {
 							args.putString("catNo", satellites[i].getCatNo());
 							args.putString("gnssStr",
 									satellites[i].getGnssStr());
+							args.putString("name", satellites[i].getObjName());
 							dialog2.setArguments(args);
 							dialog2.show(getFragmentManager(), "tag?");
 						}
