@@ -6,6 +6,7 @@
     <string name="camera_image_description">this image is camera button</string>
     <string name="actionbar_backhome">home</string>
     <string name="menu_close">Close</string>
+    <string name="menu_info">About GNSSFinder</string>
     <string name="setting_button_description">image setting button</string>
     <string name="gnss_selection_label">GNSS Selection</string>
     <string name="label_gps_blockIIF_checkbox">GPS Block IIF</string>
@@ -19,5 +20,5 @@
     <string name="label_latitude">Latitude[deg]</string>
     <string name="label_longitude">Longitude[deg]</string>
     <string name="label_altitude">Altitude[m]</string>
-    
+
 </resources>

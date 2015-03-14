@@ -7,14 +7,18 @@
         android:id="@+id/action_bar_back"
         android:icon="@drawable/ic_action_navigation_back"
         android:orderInCategory="100"
-        android:title="@string/actionbar_backhome"
-        android:showAsAction="ifRoom">
+        android:showAsAction="ifRoom"
+        android:title="@string/actionbar_backhome">
     </item>
-    <item 
+    <item
+        android:id="@+id/action_info"
+        android:showAsAction="never"
+        android:title="@string/menu_info">
+    </item>
+    <item
         android:id="@+id/action_close"
-        android:title="@string/menu_close"
-        android:showAsAction="never">
-        
+        android:showAsAction="never"
+        android:title="@string/menu_close">
     </item>
-        
+
 </menu>
