@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.braincopy.gnssfinder.MainActivity" >
+
+    <item
+        android:id="@+id/action_bar_back"
+        android:icon="@drawable/ic_action_navigation_back"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:title="@string/actionbar_backhome">
+    </item>
+    <item
+        android:id="@+id/action_info"
+        android:showAsAction="never"
+        android:title="@string/menu_info">
+    </item>
+    <item
+        android:id="@+id/action_close"
+        android:showAsAction="never"
+        android:title="@string/menu_close">
+    </item>
+
+</menu>

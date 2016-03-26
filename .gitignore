@@ -5,3 +5,8 @@ bin
 # Package Files #
 *.war
 *.ear
+GNSSFinder/.idea
+GNSSFinder/app/build
+GNSSFinder/build
+*.jar
+GNSSFinder/.gradle
