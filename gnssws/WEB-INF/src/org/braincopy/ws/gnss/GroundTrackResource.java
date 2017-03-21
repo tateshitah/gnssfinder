@@ -71,10 +71,8 @@ import sgp4v.Sgp4Unit;
 @Path("groundTrack")
 public class GroundTrackResource {
 
-	protected static DateFormat DATETIME_FORMAT = new SimpleDateFormat(
-			"yyyy-MM-dd_HH:mm:ss");
-	protected static DateFormat TIME_FORMAT = new SimpleDateFormat(
-			"HH:mm:ss.SSS");
+	protected static DateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+	protected static DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 	protected static DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Context
@@ -91,28 +89,22 @@ public class GroundTrackResource {
 	 * 
 	 * @param format
 	 *            xml, json or jsonp
-	 * @param latitude
-	 *            deg
-	 * @param longitude
-	 *            deg
 	 * @param dateTimeStr
 	 *            YYYY-MM-DD_HH:mm:ss
 	 * @param term
 	 *            [s]
 	 * @param step
 	 *            [s]
-	 * @param gnssStr
+	 * @param gnss
 	 *            G: GPS, R: GLONASS, E: GALILEO, C: BEIDOU, J: QZSS, I: IRNSS,
 	 *            S: SBAS
 	 * @param callback
 	 * @return
 	 */
 	@GET
-	public Response getIt(
-			@DefaultValue("xml") @QueryParam("format") String format,
+	public Response getIt(@DefaultValue("xml") @QueryParam("format") String format,
 			@DefaultValue("-9999") @QueryParam("dateTime") String dateTimeStr,
-			@DefaultValue("86400") @QueryParam("term") int term,
-			@DefaultValue("86400") @QueryParam("step") int step,
+			@DefaultValue("86400") @QueryParam("term") int term, @DefaultValue("86400") @QueryParam("step") int step,
 			@DefaultValue("J") @QueryParam("gnss") String gnssStr,
 			@DefaultValue("callback") @QueryParam("callback") String callback) {
 		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -121,10 +113,8 @@ public class GroundTrackResource {
 			// System.err.println("debug: HourOfDay should be 12-> "
 			// + calendar.get(Calendar.HOUR_OF_DAY));
 		} catch (ParseException e) {
-			return getFormattedError(
-					Response.status(406),
-					"Invalid Parameter: \"dateTime\", "
-							+ e.getLocalizedMessage() + ".", format, callback);
+			return getFormattedError(Response.status(406),
+					"Invalid Parameter: \"dateTime\", " + e.getLocalizedMessage() + ".", format, callback);
 		}
 
 		SpaceTrackWorker worker = new SpaceTrackWorker();
@@ -154,9 +144,9 @@ public class GroundTrackResource {
 					calendar.add(Calendar.SECOND, -term);// move to original
 															// date
 
-					Vector<Sgp4Data> results = sgp4.runSgp4(tempTLE.getLine1(),
-							tempTLE.getLine2(), startYear, startDay, stopYear,
-							stopDay, step / 60);// step's unit is second
+					Vector<Sgp4Data> results = sgp4.runSgp4(tempTLE.getLine1(), tempTLE.getLine2(), startYear, startDay,
+							stopYear, stopDay, step / 60);// step's unit is
+															// second
 					PositionECI posEci = null;
 					PositionLLH posllh = null;
 					GregorianCalendar dateAndTime = null;
@@ -164,48 +154,39 @@ public class GroundTrackResource {
 					Sgp4Data data = null;
 					for (int i = 0; i < numOfResultsOfEachSat; i++) {
 						data = (Sgp4Data) results.elementAt(i);
-						days = startDay + i * (double) step
-								/ (double) ConstantNumber.SECONDS_DAY;
-						dateAndTime = worker.getCalendarFmYearAndDays(
-								startYear, days);
-						// System.err.println("debug: Month should be 7 (Aug)-> "
+						days = startDay + i * (double) step / (double) ConstantNumber.SECONDS_DAY;
+						dateAndTime = worker.getCalendarFmYearAndDays(startYear, days);
+						// System.err.println("debug: Month should be 7 (Aug)->
+						// "
 						// + dateAndTime.get(Calendar.MONTH));
-						posEci = new PositionECI(data.getX()
-								* ConstantNumber.RADIUS_OF_EARTH, data.getY()
-								* ConstantNumber.RADIUS_OF_EARTH, data.getZ()
-								* ConstantNumber.RADIUS_OF_EARTH, dateAndTime);
+						posEci = new PositionECI(data.getX() * ConstantNumber.RADIUS_OF_EARTH,
+								data.getY() * ConstantNumber.RADIUS_OF_EARTH,
+								data.getZ() * ConstantNumber.RADIUS_OF_EARTH, dateAndTime);
 						posllh = posEci.convertToECEF().convertToLLH();
-						dataEntity += createSatObsInfo(dateAndTime,
-								tempTLE.getNoradCatalogID(), posllh.getLat(),
+						dataEntity += createSatObsInfo(dateAndTime, tempTLE.getNoradCatalogID(), posllh.getLat(),
 								posllh.getLon(), posllh.getHeight(), format);
 					}
 				}
 			}
-			if ("json".equalsIgnoreCase(format)
-					|| "jsonp".equalsIgnoreCase(format)) {
+			if ("json".equalsIgnoreCase(format) || "jsonp".equalsIgnoreCase(format)) {
 				dataEntity = dataEntity.substring(0, dataEntity.length() - 1);
 			}
-			return getFormattedResponse(Response.ok(), dataEntity, format,
-					callback);
+			return getFormattedResponse(Response.ok(), dataEntity, format, callback);
 
 		} catch (IOException e) {
 			System.err.println("please check the ini file: " + e.getMessage());
-			return getFormattedError(Response.status(501),
-					"contact system admin. might be ini file problem", format,
+			return getFormattedError(Response.status(501), "contact system admin. might be ini file problem", format,
 					callback);
 		} catch (ObjectDecayed e) {
 			System.err.println("please check the ini file: " + e.getMessage());
-			return getFormattedError(Response.status(501),
-					"contact system admin. might be ini file problem", format,
+			return getFormattedError(Response.status(501), "contact system admin. might be ini file problem", format,
 					callback);
 		} catch (SatElsetException e) {
 			System.err.println("please check the ini file: " + e.getMessage());
-			return getFormattedError(Response.status(501),
-					"contact system admin. might be ini file problem", format,
+			return getFormattedError(Response.status(501), "contact system admin. might be ini file problem", format,
 					callback);
 		} catch (SQLException e) {
-			return getFormattedError(Response.status(501),
-					"database problem. ", format, callback);
+			return getFormattedError(Response.status(501), "database problem. ", format, callback);
 		}
 
 	}
@@ -218,22 +199,18 @@ public class GroundTrackResource {
 	 * @param callback
 	 * @return
 	 */
-	private Response getFormattedResponse(ResponseBuilder builder,
-			String data_entity, String format, String callback) {
+	private Response getFormattedResponse(ResponseBuilder builder, String data_entity, String format, String callback) {
 		if ("xml".equalsIgnoreCase(format)) {
 			String entity = format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-					+ "<response><result>ok</result><values>%s</values>"
-					+ "<ver>0.5.0</ver></response>", data_entity);
+					+ "<response><result>ok</result><values>%s</values>" + "<ver>0.5.0</ver></response>", data_entity);
 			builder = builder.entity(entity);
 			builder = builder.type(MediaType.TEXT_XML_TYPE);
 		} else if ("json".equalsIgnoreCase(format)) {
-			String entity = format("{\"result\":\"ok\",\"values\":[%s]}",
-					data_entity);
+			String entity = format("{\"result\":\"ok\",\"values\":[%s]}", data_entity);
 			builder = builder.entity(entity);
 			builder = builder.type(MediaType.APPLICATION_JSON_TYPE);
 		} else if ("jsonp".equalsIgnoreCase(format)) {
-			String entity = format("%s({\"result\":\"ok\",\"values\":[%s]})",
-					callback, data_entity);
+			String entity = format("%s({\"result\":\"ok\",\"values\":[%s]})", callback, data_entity);
 			builder = builder.entity(entity);
 			builder = builder.type("application/javascript");
 		} else {
@@ -254,33 +231,25 @@ public class GroundTrackResource {
 	 * @param format
 	 * @return
 	 */
-	public String createSatObsInfo(GregorianCalendar dateAndTime,
-			String noradCatalogID, double latitude, double longitude,
-			double height, String format) {
+	public String createSatObsInfo(GregorianCalendar dateAndTime, String noradCatalogID, double latitude,
+			double longitude, double height, String format) {
 		String result = "";
 
 		if ("xml".equalsIgnoreCase(format)) {
-			result = format("<SatObservation><Sensor><SensorLocation>"
-					+ "<Latitude units=\"degrees\">%f</Latitude>"
-					+ "<Longitude units=\"degrees\">%f</Longitude>"
-					+ "<Altitude units=\"meters\">%f</Altitude>"
-					+ "</SensorLocation></Sensor>"
-					+ "<SatelliteNumber>%s</SatelliteNumber>"
-					+ "<ObDate>%s</ObDate>"
-					+ "<ObTime>%s</ObTime></SatObservation>", latitude * 180
-					/ Math.PI, longitude * 180 / Math.PI, height,
-					noradCatalogID, DATE_FORMAT.format(dateAndTime.getTime()),
-					TIME_FORMAT.format(dateAndTime.getTime()));
-		} else if ("json".equalsIgnoreCase(format)
-				|| "jsonp".equalsIgnoreCase(format)) {
-			result = format("{\"SatObservation\": {" + "\"Sensor\": {"
-					+ "\"SensorLocation\": {" + "\"Latitude\": %f,"
-					+ "\"Longitude\": %f,\"Altitude\": %f}},"
-					+ "\"SatelliteNumber\": %s," + "\"ObDate\": \"%s\","
-					+ "\"ObTime\": \"%s\"}},", latitude * 180 / Math.PI,
-					longitude * 180 / Math.PI, height, noradCatalogID,
-					DATE_FORMAT.format(dateAndTime.getTime()),
-					TIME_FORMAT.format(dateAndTime.getTime()));
+			result = format(
+					"<SatObservation><Sensor><SensorLocation>" + "<Latitude units=\"degrees\">%f</Latitude>"
+							+ "<Longitude units=\"degrees\">%f</Longitude>" + "<Altitude units=\"meters\">%f</Altitude>"
+							+ "</SensorLocation></Sensor>" + "<SatelliteNumber>%s</SatelliteNumber>"
+							+ "<ObDate>%s</ObDate>" + "<ObTime>%s</ObTime></SatObservation>",
+					latitude * 180 / Math.PI, longitude * 180 / Math.PI, height, noradCatalogID,
+					DATE_FORMAT.format(dateAndTime.getTime()), TIME_FORMAT.format(dateAndTime.getTime()));
+		} else if ("json".equalsIgnoreCase(format) || "jsonp".equalsIgnoreCase(format)) {
+			result = format(
+					"{\"SatObservation\": {" + "\"Sensor\": {" + "\"SensorLocation\": {" + "\"Latitude\": %f,"
+							+ "\"Longitude\": %f,\"Altitude\": %f}}," + "\"SatelliteNumber\": %s,"
+							+ "\"ObDate\": \"%s\"," + "\"ObTime\": \"%s\"}},",
+					latitude * 180 / Math.PI, longitude * 180 / Math.PI, height, noradCatalogID,
+					DATE_FORMAT.format(dateAndTime.getTime()), TIME_FORMAT.format(dateAndTime.getTime()));
 		}
 		return result;
 	}
@@ -292,19 +261,14 @@ public class GroundTrackResource {
 	 * @param format
 	 * @return
 	 */
-	protected Response getFormattedError(ResponseBuilder builder,
-			String message, String format) {
+	protected Response getFormattedError(ResponseBuilder builder, String message, String format) {
 		if ("xml".equalsIgnoreCase(format)) {
-			String entity = format(
-					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-							+ "<response><result>error</result><message>%s</message></response>",
-					message);
+			String entity = format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+					+ "<response><result>error</result><message>%s</message></response>", message);
 			builder = builder.entity(entity);
 			builder = builder.type(MediaType.TEXT_XML_TYPE);
 		} else if ("json".equalsIgnoreCase(format)) {
-			String entity = format(
-					"{\"result\": \"error\", \"message\": \"%s\"}",
-					message.replaceAll("\"", "\\\""));
+			String entity = format("{\"result\": \"error\", \"message\": \"%s\"}", message.replaceAll("\"", "\\\""));
 			builder = builder.entity(entity);
 			builder = builder.type(MediaType.APPLICATION_JSON_TYPE);
 		} else {
@@ -321,12 +285,10 @@ public class GroundTrackResource {
 	 * @param callback
 	 * @return
 	 */
-	protected Response getFormattedError(ResponseBuilder builder,
-			String message, String format, String callback) {
+	protected Response getFormattedError(ResponseBuilder builder, String message, String format, String callback) {
 		if ("jsonp".equalsIgnoreCase(format)) {
-			String entity = format(
-					"%s({\"result\": \"error\", \"message\": \"%s\"})",
-					callback, message.replaceAll("\"", "\\\""));
+			String entity = format("%s({\"result\": \"error\", \"message\": \"%s\"})", callback,
+					message.replaceAll("\"", "\\\""));
 			builder = builder.entity(entity);
 			builder = builder.type("application/javascript");
 			builder = builder.encoding("utf-8");
