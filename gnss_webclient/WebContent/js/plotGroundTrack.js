@@ -1,6 +1,12 @@
 /**
  * 
- * Google Map API Ver.3
+ * plotGroundTrack.js
+ * 
+ * This JavaScript is for sample04.html.
+ * sample04.html is a html file for user.
+ * The web page will provide selection function to choose GNSS to show on the map.
+ * 
+ *  * Google Map API Ver.3
  * 
  * K.Someya, Hiroaki Tateshita Reference from
  * http://www.ajaxtower.jp/googlemaps/ Reference from
@@ -191,7 +197,7 @@ function roadSatellite() {
 		}
 	};
 	//var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
-	var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
+	var url = 'http://'+url_string+'/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }

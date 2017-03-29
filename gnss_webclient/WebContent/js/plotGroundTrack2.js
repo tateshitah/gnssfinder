@@ -1,5 +1,12 @@
 /**
  * 
+ * plotGroundTrack2.js
+ * 
+ * This JavaScript is for sample05.html.
+ * sample05.html is for Android application GNSSFinder.
+ * The application's Map function will call by using following URL
+ * "http://braincopy.org/WebContent/sample05.html?gnss=***"
+ * 
  * Google Map API Ver.3
  * 
  * K.Someya, Hiroaki Tateshita Reference from
