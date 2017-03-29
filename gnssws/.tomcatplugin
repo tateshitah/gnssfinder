@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tomcatProjectProperties>
     <rootDir>/</rootDir>
+    <workDir>/work</workDir>
     <exportSource>false</exportSource>
     <reloadable>true</reloadable>
-    <redirectLogger>true</redirectLogger>
+    <redirectLogger>false</redirectLogger>
     <updateXml>true</updateXml>
-    <warLocation>/Users/thiro/dev/gnssws.war</warLocation>
+    <warLocation>/Users/thiro/gnssfinder/gnssws/target/gnssws.war</warLocation>
     <extraInfo></extraInfo>
-    <webPath>/gnssws</webPath>
+    <mavenClasspath>false</mavenClasspath>
+    <webPath></webPath>
 </tomcatProjectProperties>

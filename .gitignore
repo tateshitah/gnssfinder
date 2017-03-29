@@ -10,3 +10,8 @@ GNSSFinder/app/build
 GNSSFinder/build
 *.jar
 GNSSFinder/.gradle
+build.gradle
+app.iml
+gradle-wrapper.properties
+.project
+.tomcatplugin

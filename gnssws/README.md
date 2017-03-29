@@ -4,9 +4,9 @@ gnssws: GNSS Web Service
 "gnssws" is a "function" of gnssfinder. This server side program can provide gnss positions in response to input information such as time and gnss satellites. 
 
 #Target Environment
-*Apache 2.2
-*Tomcat 7
-*PostgreSQL 8
+*Apache 2.2  
+*Tomcat 7  
+*PostgreSQL 8  
 
 #Installation
 ## Preparation
@@ -26,14 +26,19 @@ Sample url string is
 
 - format (xml)  
 	xml, json or jsonp
+	
 - dateTimeStr (-9999: should be error)  
 	YYYY-MM-DD_HH:mm:ss
+	
 - term (86400: means 24 hour)  
 	[s]
+	
 - step  
 	[s]
+	
 - gnss
 	G: GPS, R: GLONASS, E: GALILEO, C: BEIDOU, J: QZSS, I: IRNSS, S: SBAS
+	
 - callback
 	 
 #Operation
