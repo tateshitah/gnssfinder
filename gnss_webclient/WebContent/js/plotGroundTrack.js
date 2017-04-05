@@ -49,9 +49,6 @@ var satArray = new Array();
  * this array is the number of data of each satellite get from web api
  */
 var satNo = new Array();
-for (var i = 0; i < 5; i++) {
-	satNo[i] = 0;
-}
 
 function initialize() {
 
@@ -103,9 +100,9 @@ function initialize() {
 
 	/* Event when click */
 	google.maps.event.addListener(map, 'click', function(event) {
-		for (var i = 0; i < satArray.length; i++) {
-			satNo[i] = 0;
-		}
+//		for (var i = 0; i < satArray.length; i++) {
+//			satNo[i] = 0;
+//		}
 		update_timeout = setTimeout(function() {
 			// alert("here click event");
 			var url_Date_temp = $('#datepicker').val();
@@ -176,6 +173,7 @@ function Satellite(_catNo, _rnxStr, _imgStr, _description) {
 
 /**
  * road satellite data from text file. output is array of Satellite objects.
+ * This method contains initialization of trackCoordinatesArray and satArray.
  */
 function roadSatellite() {
 
@@ -194,10 +192,13 @@ function roadSatellite() {
 			for (var i = 0; i < satArray.length; i++) {
 				trackCoordinatesArray[i] = new Array();
 			}
+			for (var i = 0; i < satArray.length; i++) {
+				satNo[i] = 0;
+			}
 		}
 	};
-	//var url = 'http://localhost:8080/gnss_webclient/assets/satelliteDataBase.txt';
-	var url = 'http://'+url_string+'/WebContent/assets/satelliteDataBase.txt';
+	//var url = 'http://localhost:8080/gnss_webclient/WebContent/assets/satelliteDataBase.txt';
+	var url = 'http://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }

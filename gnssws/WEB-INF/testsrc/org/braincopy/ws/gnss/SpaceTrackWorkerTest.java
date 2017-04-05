@@ -3,9 +3,12 @@ package org.braincopy.ws.gnss;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -19,8 +22,48 @@ import sgp4v.Sgp4Data;
 import sgp4v.Sgp4Unit;
 
 public class SpaceTrackWorkerTest {
-	protected static DateFormat DATETIME_FORMAT = new SimpleDateFormat(
-			"yyyy-MM-dd_HH:mm:ss");
+	protected static DateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+
+	@Test
+	public void testGetTLEList() {
+		SpaceTrackWorker worker = new SpaceTrackWorker();
+		GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+		calendar.set(2017, 2, 31, 00, 00, 00);
+		try {
+			ArrayList<TLEString> tleList = worker.getTLEList(calendar, "G");
+
+			System.out.println("size is " + tleList.size());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testLoadConnection() {
+		SpaceTrackWorker worker = new SpaceTrackWorker();
+		GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+		calendar.set(2017, 2, 31, 00, 00, 00);
+		try {
+			worker.loadPropertiesFiles();
+		} catch (IOException e1) {
+			fail("properties files are strange.");
+			e1.printStackTrace();
+		}
+		try {
+			worker.loadConnection();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 
 	@Test
 	public void testGetCalendarFmYearAndDays() {
@@ -75,8 +118,7 @@ public class SpaceTrackWorkerTest {
 		int startYear = 2014, stopYear = 2014;
 		double startDay = 0, stopDay = 0.5, step = 720;
 		try {
-			Vector<Sgp4Data> results = sgp4.runSgp4(tle1, tle2, startYear,
-					startDay, stopYear, stopDay, step);
+			Vector<Sgp4Data> results = sgp4.runSgp4(tle1, tle2, startYear, startDay, stopYear, stopDay, step);
 			assertEquals(2, results.size());
 		} catch (ObjectDecayed e) {
 			fail(e.getMessage());

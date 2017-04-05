@@ -2,10 +2,9 @@
  * 
  * plotGroundTrack2.js
  * 
- * This JavaScript is for sample05.html.
- * sample05.html is for Android application GNSSFinder.
- * The application's Map function will call by using following URL
- * "http://braincopy.org/WebContent/sample05.html?gnss=***"
+ * This JavaScript is for sample05.html. sample05.html is for Android
+ * application GNSSFinder. The application's Map function will call by using
+ * following URL "http://braincopy.org/WebContent/sample05.html?gnss=***"
  * 
  * Google Map API Ver.3
  * 
@@ -151,9 +150,7 @@ function startPlot(gnssString) {
 	$("#loading")
 			.append(
 					'<p style="font-family:arial;color:red;">now loading <img src="res/drawable/loading.gif"></p>');
-	for (var i = 0; i < 20; i++) {
-		satNo[i] = 0;
-	}
+
 	update_timeout = setTimeout(function() {
 		// alert("here click event");
 		var url_Date_temp = $('#datepicker').val();
@@ -207,6 +204,7 @@ function Satellite(_catNo, _rnxStr, _imgStr, _description) {
 
 /**
  * road satellite data from text file. output is array of Satellite objects.
+ * This method contains initialization of trackCoordinatesArray and satArray.
  */
 function roadSatellite() {
 
@@ -224,6 +222,9 @@ function roadSatellite() {
 			});
 			for (var i = 0; i < satArray.length; i++) {
 				trackCoordinatesArray[i] = new Array();
+			}
+			for (var i = 0; i < satArray.length; i++) {
+				satNo[i] = 0;
 			}
 		}
 	};

@@ -73,12 +73,12 @@ public class SpaceTrackWorker {
 	ServletContext context;
 
 	/**
-	 * 
+	 * properties file includes connecting information to Spacetrack.
 	 */
 	private Properties spaceTrackProperties;
 
 	/**
-	 * 
+	 * properties file includes connecting information to PostgreSQL.
 	 */
 	private Properties dbProperties;
 
@@ -104,8 +104,7 @@ public class SpaceTrackWorker {
 		try {
 
 			SpaceTrackWorker worker = new SpaceTrackWorker();
-			GregorianCalendar calendar = new GregorianCalendar(
-					TimeZone.getTimeZone("UTC"));
+			GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
 			calendar.set(2012, 7, 21, 00, 00, 00);
 			ArrayList<TLEString> tleList = worker.getTLEList(calendar, "E");
 			Iterator<TLEString> ite = tleList.iterator();
@@ -117,8 +116,7 @@ public class SpaceTrackWorker {
 			double latDeg = 26.1312;// [deg]
 			double lonDeg = 127.4048;// [deg]
 
-			PositionECEF userPos = new PositionLLH(latDeg * Math.PI / 180,
-					lonDeg * Math.PI / 180, 0).convertToECEF();
+			PositionECEF userPos = new PositionLLH(latDeg * Math.PI / 180, lonDeg * Math.PI / 180, 0).convertToECEF();
 
 			while (ite.hasNext()) {
 				tempTLE = (TLEString) ite.next();
@@ -132,9 +130,8 @@ public class SpaceTrackWorker {
 					stopYear = calendar.get(Calendar.YEAR);
 					stopDay = worker.getDoubleDay(calendar);
 
-					Vector<Sgp4Data> results = sgp4.runSgp4(tempTLE.getLine1(),
-							tempTLE.getLine2(), startYear, startDay, stopYear,
-							stopDay, step);
+					Vector<Sgp4Data> results = sgp4.runSgp4(tempTLE.getLine1(), tempTLE.getLine2(), startYear, startDay,
+							stopYear, stopDay, step);
 					PositionECI posEci = null;
 					PositionENU posEnu = null;
 					GregorianCalendar dateAndTime = null;
@@ -143,23 +140,17 @@ public class SpaceTrackWorker {
 					for (int i = 0; i < results.size(); i++) {
 						data = (Sgp4Data) results.elementAt(i);
 						days = startDay + i * step / (60 * 24);
-						dateAndTime = worker.getCalendarFmYearAndDays(
-								startYear, days);
+						dateAndTime = worker.getCalendarFmYearAndDays(startYear, days);
 
-						posEci = new PositionECI(data.getX()
-								* ConstantNumber.RADIUS_OF_EARTH, data.getY()
-								* ConstantNumber.RADIUS_OF_EARTH, data.getZ()
-								* ConstantNumber.RADIUS_OF_EARTH, dateAndTime);
-						posEnu = PositionENU.convertToENU(
-								posEci.convertToECEF(), userPos);
+						posEci = new PositionECI(data.getX() * ConstantNumber.RADIUS_OF_EARTH,
+								data.getY() * ConstantNumber.RADIUS_OF_EARTH,
+								data.getZ() * ConstantNumber.RADIUS_OF_EARTH, dateAndTime);
+						posEnu = PositionENU.convertToENU(posEci.convertToECEF(), userPos);
 
-						System.out.println(tempTLE.getNoradCatalogID() + "\t"
-								+ dateAndTime.get(Calendar.YEAR) + "/"
-								+ (dateAndTime.get(Calendar.MONTH) + 1) + "/"
-								+ dateAndTime.get(Calendar.DAY_OF_MONTH) + " "
-								+ dateAndTime.get(Calendar.HOUR_OF_DAY) + ":"
-								+ dateAndTime.get(Calendar.MINUTE) + "\t"
-								+ posEnu.getAzimuth() * 180 / Math.PI + "\t "
+						System.out.println(tempTLE.getNoradCatalogID() + "\t" + dateAndTime.get(Calendar.YEAR) + "/"
+								+ (dateAndTime.get(Calendar.MONTH) + 1) + "/" + dateAndTime.get(Calendar.DAY_OF_MONTH)
+								+ " " + dateAndTime.get(Calendar.HOUR_OF_DAY) + ":" + dateAndTime.get(Calendar.MINUTE)
+								+ "\t" + posEnu.getAzimuth() * 180 / Math.PI + "\t "
 								+ posEnu.getElevation() * 180 / Math.PI + "\t");
 
 					}
@@ -178,8 +169,7 @@ public class SpaceTrackWorker {
 	 * @return
 	 */
 	public GregorianCalendar getCalendarFmYearAndDays(int year, double days) {
-		GregorianCalendar result = new GregorianCalendar(
-				TimeZone.getTimeZone("UTC"));
+		GregorianCalendar result = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
 		result.set(Calendar.YEAR, year);
 		int daysOfYear = (int) days;
 		result.set(Calendar.DAY_OF_YEAR, daysOfYear + 1);
@@ -189,8 +179,7 @@ public class SpaceTrackWorker {
 		double minutes = (hours - (double) hourOfDay) * 60;
 		int minuteOfHour = (int) minutes;
 		result.set(Calendar.MINUTE, minuteOfHour);
-		result.set(Calendar.SECOND,
-				(int) ((minutes - (double) minuteOfHour) * 60));
+		result.set(Calendar.SECOND, (int) ((minutes - (double) minuteOfHour) * 60));
 		return result;
 	}
 
@@ -215,8 +204,7 @@ public class SpaceTrackWorker {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public ArrayList<TLEString> getTLEList(Calendar calendar, String gnssStr)
-			throws IOException, SQLException {
+	public ArrayList<TLEString> getTLEList(Calendar calendar, String gnssStr) throws IOException, SQLException {
 		ArrayList<TLEString> result = new ArrayList<TLEString>();
 
 		loadPropertiesFiles();
@@ -242,13 +230,11 @@ public class SpaceTrackWorker {
 			/*
 			 * create query for space track
 			 */
-			String query = createQueryForSpaceTrack(noradCatalogIDList,
-					calendar);
+			String query = createQueryForSpaceTrack(noradCatalogIDList, calendar);
 
 			URL url = new URL(baseURL + query);
 
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					(url.openStream())));
+			BufferedReader br = new BufferedReader(new InputStreamReader((url.openStream())));
 
 			String[] temp;
 			TLEString tleString = null;
@@ -264,9 +250,7 @@ public class SpaceTrackWorker {
 						if (temp[0].equals("2")) {
 							tempNoradCatID = temp[1];
 							for (int i = 0; i < result.size(); i++) {
-								if (((TLEString) result.get(i))
-										.getNoradCatalogID().equals(
-												tempNoradCatID)) {
+								if (((TLEString) result.get(i)).getNoradCatalogID().equals(tempNoradCatID)) {
 									result.remove(i);
 								}
 							}
@@ -297,13 +281,11 @@ public class SpaceTrackWorker {
 	 * @param tleStringList
 	 * @param noradCatalogIDList
 	 */
-	private void addNoAvailableTLE(ArrayList<TLEString> tleStringList,
-			String[] noradCatalogIDList) {
+	private void addNoAvailableTLE(ArrayList<TLEString> tleStringList, String[] noradCatalogIDList) {
 		TLEString tleString;
 		for (int j = 0; j < noradCatalogIDList.length; j++) {
 			check: for (int i = 0; i < tleStringList.size(); i++) {
-				if (noradCatalogIDList[j].equals(tleStringList.get(i)
-						.getNoradCatalogID())) {
+				if (noradCatalogIDList[j].equals(tleStringList.get(i).getNoradCatalogID())) {
 					break check;
 				}
 				if (i == tleStringList.size() - 1) {
@@ -311,8 +293,7 @@ public class SpaceTrackWorker {
 					tleString.setAvailable(false);
 					tleString.setNoradCatalogID(noradCatalogIDList[j]);
 					tleStringList.add(tleString);
-					System.out.println("no-available tle added: "
-							+ noradCatalogIDList[j]);
+					System.out.println("no-available tle added: " + noradCatalogIDList[j]);
 				}
 			}
 		}
@@ -334,12 +315,10 @@ public class SpaceTrackWorker {
 	 * @param calendar
 	 * @throws SQLException
 	 */
-	private void addTLEtoDB(ArrayList<TLEString> tleStringList,
-			Calendar calendar) throws SQLException {
+	private void addTLEtoDB(ArrayList<TLEString> tleStringList, Calendar calendar) throws SQLException {
 		Iterator<TLEString> ite = tleStringList.iterator();
 		TLEString tleString = null;
-		String sql = "SELECT noradCatalogID,card1,card2 FROM tle_tbl"
-				+ " WHERE date = ? and noradcatalogid = ?";
+		String sql = "SELECT noradCatalogID,card1,card2 FROM tle_tbl" + " WHERE date = ? and noradcatalogid = ?";
 		PreparedStatement selectStatement = dbConnection.prepareStatement(sql);
 		PreparedStatement updateStatement;
 		PreparedStatement insertStatement;
@@ -347,28 +326,23 @@ public class SpaceTrackWorker {
 		while (ite.hasNext()) {
 			tleString = ite.next();
 			selectStatement.setDate(1, new Date(calendar.getTimeInMillis()));
-			selectStatement.setString(2,
-					String.valueOf(tleString.getNoradCatalogID()));
+			selectStatement.setString(2, String.valueOf(tleString.getNoradCatalogID()));
 			resultSet = selectStatement.executeQuery();// result should be 1.
 			if (resultSet.next()) {
-				sql = "update tle_tbl set card1 = ?, card2 = ?, status = ? "
-						+ "where date = ? and noradcatalogid = ? ";
+				sql = "update tle_tbl set card1 = ?, card2 = ?, status = ? " + "where date = ? and noradcatalogid = ? ";
 				updateStatement = dbConnection.prepareStatement(sql);
 				updateStatement.setString(1, tleString.getLine1());
 				updateStatement.setString(2, tleString.getLine2());
 				updateStatement.setInt(3, tleString.getStatus());
-				updateStatement
-						.setDate(4, new Date(calendar.getTimeInMillis()));
+				updateStatement.setDate(4, new Date(calendar.getTimeInMillis()));
 				updateStatement.setString(5, tleString.getNoradCatalogID());
 				updateStatement.execute();
 				System.out.println("db updated.");
 				updateStatement.close();
 			} else {
-				sql = "insert into tle_tbl (date, noradcatalogid, card1, card2, status) "
-						+ "values (?,?,?,?,?)";
+				sql = "insert into tle_tbl (date, noradcatalogid, card1, card2, status) " + "values (?,?,?,?,?)";
 				insertStatement = dbConnection.prepareStatement(sql);
-				insertStatement
-						.setDate(1, new Date(calendar.getTimeInMillis()));
+				insertStatement.setDate(1, new Date(calendar.getTimeInMillis()));
 				insertStatement.setString(2, tleString.getNoradCatalogID());
 				insertStatement.setString(3, tleString.getLine1());
 				insertStatement.setString(4, tleString.getLine2());
@@ -392,12 +366,10 @@ public class SpaceTrackWorker {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	private void setTLEfmDB(ArrayList<TLEString> tleStringList,
-			String[] noradCatalogIDList, Calendar calendar) throws IOException,
-			SQLException {
+	private void setTLEfmDB(ArrayList<TLEString> tleStringList, String[] noradCatalogIDList, Calendar calendar)
+			throws IOException, SQLException {
 		dbConnection = loadConnection();
-		String sql = "SELECT noradCatalogID,card1,card2,status FROM tle_tbl"
-				+ " WHERE date = ? and ";
+		String sql = "SELECT noradCatalogID,card1,card2,status FROM tle_tbl" + " WHERE date = ? and ";
 		sql += "(noradCatalogID = ? ";
 		for (int i = 1; i < noradCatalogIDList.length; i++) {
 			sql += "OR noradCatalogID = ? ";
@@ -423,7 +395,7 @@ public class SpaceTrackWorker {
 
 	/**
 	 * 
-	 * @return
+	 * @return Connection to PostgreSQL
 	 * @throws IOException
 	 * @throws SQLException
 	 */
@@ -446,8 +418,7 @@ public class SpaceTrackWorker {
 
 	private String[] getNoradCatalogID(String gnssStr) {
 		String qzss = spaceTrackProperties.getProperty("QZSS");
-		String gps = spaceTrackProperties.getProperty("GPS") + ","
-				+ spaceTrackProperties.getProperty("GPS-Block-IIF");
+		String gps = spaceTrackProperties.getProperty("GPS") + "," + spaceTrackProperties.getProperty("GPS-Block-IIF");
 		String galileo = spaceTrackProperties.getProperty("GAL");
 		String noradCatNumStr = "";
 		if (gnssStr.contains("G") && gps != null) {
@@ -460,36 +431,31 @@ public class SpaceTrackWorker {
 			noradCatNumStr += qzss;
 		}
 		if (noradCatNumStr.endsWith(",")) {
-			noradCatNumStr = noradCatNumStr.substring(0,
-					noradCatNumStr.length() - 1);
+			noradCatNumStr = noradCatNumStr.substring(0, noradCatNumStr.length() - 1);
 		}
 		return noradCatNumStr.split(",");
 	}
 
 	/**
+	 * load properties files: space_track.ini and db.ini This method should be
+	 * called before loadConnection().
 	 * 
 	 * @throws IOException
 	 */
-	private void loadPropertiesFiles() throws IOException {
+	public void loadPropertiesFiles() throws IOException {
 		if (spaceTrackProperties == null) {
 			spaceTrackProperties = new Properties();
 			dbProperties = new Properties();
 			try {
 				if (context != null) {
-					spaceTrackProperties
-							.load(context
-									.getResourceAsStream("WEB-INF/conf/space_track.ini"));
-					dbProperties.load(context
-							.getResourceAsStream("WEB-INF/conf/db.ini"));
+					spaceTrackProperties.load(context.getResourceAsStream("WEB-INF/conf/space_track.ini"));
+					dbProperties.load(context.getResourceAsStream("WEB-INF/conf/db.ini"));
 				} else {
-					spaceTrackProperties.load(new FileInputStream(
-							"WEB-INF/conf/space_track.ini"));
-					dbProperties
-							.load(new FileInputStream("WEB-INF/conf/db.ini"));
+					spaceTrackProperties.load(new FileInputStream("WEB-INF/conf/space_track.ini"));
+					dbProperties.load(new FileInputStream("WEB-INF/conf/db.ini"));
 				}
 			} catch (IOException e) {
-				throw new IOException("during loading ini file: "
-						+ e.getMessage());
+				throw new IOException("during loading ini file: " + e.getMessage());
 			}
 		}
 	}
@@ -501,8 +467,7 @@ public class SpaceTrackWorker {
 	 * @param calendar
 	 * @return
 	 */
-	private String createQueryForSpaceTrack(String[] noradCatalogIDList,
-			Calendar calendar) {
+	private String createQueryForSpaceTrack(String[] noradCatalogIDList, Calendar calendar) {
 		String query;
 		String noradCatNumStr = noradCatalogIDList[0];
 		for (int i = 1; i < noradCatalogIDList.length; i++) {
@@ -546,8 +511,7 @@ public class SpaceTrackWorker {
 		OutputStream os = httpsConnection.getOutputStream();
 		os.write(input.getBytes());
 		os.flush();
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				(httpsConnection.getInputStream())));
+		BufferedReader br = new BufferedReader(new InputStreamReader((httpsConnection.getInputStream())));
 
 		String output;
 		System.out.println("Output from Server .... \n");
