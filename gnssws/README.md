@@ -25,9 +25,13 @@ Input parameter through url string, and you can get result text data.
 - Request URL
 `http://<address>/gnssws/groundTrack`
 - Queries
+
 |param|name|description|blank|value|
+|:---|:---|:-----------|:---|:----|
 |format|format|default is xml|allowed|xml, json or jsonp|
 |dateTimeStr| date and time string|default is -9999. It means it should be error|not allowed|YYYY-MM-DD_HH:mm:ss|
+
+
 Sample url string is 
 
 	http://<address>/gnssws/groundTrack?dateTime=2017-01-07_10:00:00&format=json&gnss=GE
