@@ -77,7 +77,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:text="35.660995" />
     </LinearLayout>
 
     <LinearLayout
@@ -97,7 +98,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:inputType="numberDecimal" >
+            android:inputType="numberDecimal"
+            android:text="139.67761">
 
         </EditText>
     </LinearLayout>
@@ -119,7 +121,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:text="0.0" />
     </LinearLayout>
 
     <View
