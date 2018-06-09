@@ -1,4 +1,4 @@
-package org.braincopy.gnssfinder;
+package org.braincopy.gnssfinder2;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

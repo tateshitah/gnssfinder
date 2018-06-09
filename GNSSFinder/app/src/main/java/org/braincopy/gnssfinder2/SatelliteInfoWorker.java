@@ -1,4 +1,4 @@
-package org.braincopy.gnssfinder;
+package org.braincopy.gnssfinder2;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -7,6 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -16,13 +19,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.HttpEntity;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.HttpStatus;
+//import org.apache.http.client.ClientProtocolException;
+//import org.apache.http.client.methods.HttpGet;
+//import org.apache.http.client.methods.HttpUriRequest;
+//import org.apache.http.impl.client.DefaultHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -32,11 +35,11 @@ import android.os.Environment;
 import android.util.Log;
 
 /**
- * This class will work for you to get any information related satellite from
+ * This class will work for you to get any information related satellites from
  * Internet.
  * 
  * @author Hiroaki Tateshita
- * @version 0.7.2
+ * @version 0.8.0
  * 
  */
 public class SatelliteInfoWorker extends Thread {
@@ -100,7 +103,6 @@ public class SatelliteInfoWorker extends Thread {
 
 	@Override
 	public void run() {
-		DefaultHttpClient client = new DefaultHttpClient();
 		Uri.Builder builder = new Uri.Builder();
 		builder.scheme("http");
 		builder.encodedAuthority("braincopy.org");
@@ -113,23 +115,33 @@ public class SatelliteInfoWorker extends Thread {
 		builder.appendQueryParameter("lon", Float.toString(lon));
 		builder.appendQueryParameter("gnss", gnssString);
 
-		HttpUriRequest getRequest = new HttpGet(builder.build().toString());
+        HttpURLConnection connection = null;
+        URL url = null;
 
-		HttpResponse response = null;
+//        DefaultHttpClient client = new DefaultHttpClient();
+//		HttpUriRequest getRequest = new HttpGet(builder.build().toString());
+
+//		HttpResponse response = null;
 		int statusCode;
 		try {
-			response = client.execute(getRequest);
-			statusCode = response.getStatusLine().getStatusCode();
+            url = new URL(builder.build().toString());
+            connection = (HttpURLConnection)url.openConnection();
+            connection.connect();
+
+//            response = client.execute(getRequest);
+//			statusCode = response.getStatusLine().getStatusCode();
+            statusCode = connection.getResponseCode();
 
 			Document doc = null;
-			if (statusCode == HttpStatus.SC_OK) {
-				HttpEntity entity = response.getEntity();
+			if (statusCode == HttpURLConnection.HTTP_OK){//HttpStatus.SC_OK) {
+//				HttpEntity entity = response.getEntity();
 
 				DocumentBuilderFactory factory = DocumentBuilderFactory
 						.newInstance();
 				try {
 					DocumentBuilder docBuilder = factory.newDocumentBuilder();
-					doc = docBuilder.parse(entity.getContent());
+//					doc = docBuilder.parse(entity.getContent());
+                    doc = docBuilder.parse(connection.getInputStream());
 					createSatelliteArray(doc);
 					// something strange. why image loaded?
 					// if (this.getStatus() == SatelliteInfoWorker.IMAGE_LOADED)
@@ -153,25 +165,29 @@ public class SatelliteInfoWorker extends Thread {
 				}
 			}
 
-		} catch (ClientProtocolException e1) {
-			e1.printStackTrace();
-			Log.e("error", "error when trying executing request.: " + e1);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			Log.e("error", "error when trying executing request.: " + e1);
-		} finally {
+		} catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
 
 		}
 
 		// from here, i will try to download satellite database text file
 		// temporary.
-		getRequest = new HttpGet(
-				"http://braincopy.org/WebContent/assets/satelliteDataBase.txt");
-		try {
-			response = client.execute(getRequest);
-			statusCode = response.getStatusLine().getStatusCode();
 
-			if (statusCode == HttpStatus.SC_OK) {
+//		getRequest = new HttpGet(
+//				"http://braincopy.org/WebContent/assets/satelliteDataBase.txt");
+        final String satelliteDatabaseURLString ="https://braincopy.org/WebContent/assets/satelliteDataBase.txt";
+		try {
+            url = new URL(satelliteDatabaseURLString);
+            connection = (HttpURLConnection)url.openConnection();
+            connection.connect();
+            //           response = client.execute(getRequest);
+//			statusCode = response.getStatusLine().getStatusCode();
+            statusCode = connection.getResponseCode();
+
+			if (statusCode == HttpURLConnection.HTTP_OK){//HttpStatus.SC_OK) {
 				String strFolder = Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 						+ "/gnssfinder/";
@@ -182,7 +198,8 @@ public class SatelliteInfoWorker extends Thread {
 				}
 				InputStream is;
 				try {
-					is = response.getEntity().getContent();
+//					is = response.getEntity().getContent();
+                    is = connection.getInputStream();
 					BufferedInputStream in = new BufferedInputStream(is, 1024);
 					BufferedOutputStream out;
 					file.createNewFile();
@@ -207,14 +224,12 @@ public class SatelliteInfoWorker extends Thread {
 					e.printStackTrace();
 				}
 			}
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-			Log.e("error", "error when trying executing request.: " + e);
-		} catch (IOException e) {
-			Log.e("error", "error when trying executing request.: " + e);
-			e.printStackTrace();
-		}
-	}
+		} catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 	public void setLatLon(float _lat, float _lon) {
 		this.lat = _lat;

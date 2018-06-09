@@ -1,4 +1,4 @@
-package org.braincopy.gnssfinder;
+package org.braincopy.gnssfinder2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -66,6 +66,10 @@ public class MainActivity extends Activity {
 			DialogFragment newFragment = new InformationDialogFragment();
 			newFragment.show(getFragmentManager(), "test");
 			return true;
+		}else if (id == R.id.action_privacy) {
+			DialogFragment newFragment = new PrivacyPolicyDialogFragment();
+			newFragment.show(getFragmentManager(), "test");
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -107,6 +111,52 @@ public class MainActivity extends Activity {
 			builder.setView(content);
 
 			builder.setMessage("About GNSSFinder").setNegativeButton("OK",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							// User cancelled the dialog
+						}
+					});
+			// Create the AlertDialog object and return it
+			return builder.create();
+		}
+	}
+	public static class PrivacyPolicyDialogFragment extends DialogFragment {
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			// Use the Builder class for convenient dialog construction
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+			LayoutInflater inflater = (LayoutInflater) getActivity()
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View content = inflater.inflate(R.layout.dialog_info, null);
+			InputStream is = null;
+			BufferedReader br = null;
+			String text = "";
+
+			try {
+				is = getActivity().getAssets().open("privacy.txt");
+				br = new BufferedReader(new InputStreamReader(is));
+
+				String str;
+				while ((str = br.readLine()) != null) {
+					text += str + "\n";
+				}
+				if (is != null)
+					is.close();
+				if (br != null)
+					br.close();
+			} catch (IOException e) {
+				System.err.println("exception when trying to open privacy.txt"
+						+ e.getMessage());
+				e.printStackTrace();
+			}
+			TextView infoTextView = (TextView) content
+					.findViewById(R.id.infoTextView);
+			infoTextView.setText(text);
+
+			builder.setView(content);
+
+			builder.setMessage("Privacy Policy").setNegativeButton("OK",
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							// User cancelled the dialog

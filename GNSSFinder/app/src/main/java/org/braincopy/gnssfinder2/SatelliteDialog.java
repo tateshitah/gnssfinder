@@ -1,4 +1,4 @@
-package org.braincopy.gnssfinder;
+package org.braincopy.gnssfinder2;
 
 import org.braincopy.silbala.ARActivity;
 import org.braincopy.silbala.ARObjectDialog;

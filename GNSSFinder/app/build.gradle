@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 26
     buildToolsVersion '27.0.3'
 
     defaultConfig {
-        applicationId "org.braincopy.gnssfinder"
+        applicationId "org.braincopy.gnssfinder2"
         minSdkVersion 15
-        targetSdkVersion 19
+        targetSdkVersion 26
     }
 
     buildTypes {

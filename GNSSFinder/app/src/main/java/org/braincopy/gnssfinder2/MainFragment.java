@@ -1,4 +1,4 @@
-package org.braincopy.gnssfinder;
+package org.braincopy.gnssfinder2;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;

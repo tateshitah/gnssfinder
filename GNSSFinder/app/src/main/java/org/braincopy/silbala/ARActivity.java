@@ -3,7 +3,7 @@ package org.braincopy.silbala;
 import java.util.Date;
 import java.util.List;
 
-import org.braincopy.gnssfinder.R;
+import org.braincopy.gnssfinder2.R;
 
 import android.app.Activity;
 import android.content.Context;

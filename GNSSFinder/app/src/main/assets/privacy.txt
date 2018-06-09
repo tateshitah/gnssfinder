@@ -1,0 +1,1 @@
+GNSSFinder gets position information from user android equipment only for the calculation of relative positions of the navigation satellites from the user’s current location. Any other information including camera data will never be shared with other people  without  user’s intention.

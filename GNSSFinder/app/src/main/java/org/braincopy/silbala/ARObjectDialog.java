@@ -1,6 +1,6 @@
 package org.braincopy.silbala;
 
-import org.braincopy.gnssfinder.R;
+import org.braincopy.gnssfinder2.R;//it should be deleted in terms of independency
 
 import android.app.Dialog;
 import android.app.DialogFragment;

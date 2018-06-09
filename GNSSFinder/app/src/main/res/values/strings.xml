@@ -20,5 +20,6 @@
     <string name="label_latitude">Latitude[deg]</string>
     <string name="label_longitude">Longitude[deg]</string>
     <string name="label_altitude">Altitude[m]</string>
+    <string name="menu_privacy">Privacy Policy</string>
 
 </resources>
