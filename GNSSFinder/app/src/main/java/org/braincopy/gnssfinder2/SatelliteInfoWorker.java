@@ -188,6 +188,7 @@ public class SatelliteInfoWorker extends Thread {
             statusCode = connection.getResponseCode();
 
 			if (statusCode == HttpURLConnection.HTTP_OK){//HttpStatus.SC_OK) {
+
 				String strFolder = Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 						+ "/gnssfinder/";
