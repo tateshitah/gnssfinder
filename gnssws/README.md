@@ -16,13 +16,14 @@ install necessary software packages such as apache2.2, tomcat7, and postgresql8
 create necessary database and table. In this application, PostgreSQL is used. The name of database is "gnss_db" in my code. you can modify it. and there is a table named "tle_tbl".
 
 tle_tbl
+
 |No|Column Name|contents|
-|:---|:---|:---|
+|:----|:----|:----|
 |1|date|pk with noradcatalogin|
 |2|noradcatalogid|pk with date|	
-|3|card1||
-|4|card2||
-|5|status||
+|3|card1| |
+|4|card2| |
+|5|status| |
 
 ## Deploy WAR file
 compile "gnssws" package and deploy tomcat server.
