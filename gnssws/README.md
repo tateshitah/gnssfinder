@@ -21,8 +21,8 @@ tle_tbl
 |:----|:----|:----|
 |1|date|pk with noradcatalogin|
 |2|noradcatalogid|pk with date|	
-|3|card1| |
-|4|card2| |
+|3|card1|first line of TLE |
+|4|card2|second line of TLE |
 |5|status| |
 
 ## Deploy WAR file
