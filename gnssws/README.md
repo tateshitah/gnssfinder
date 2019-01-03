@@ -18,7 +18,7 @@ create necessary database and table. In this application, PostgreSQL is used. Th
 tle_tbl
 
 |No|Column Name|contents|
-|:---|:---|:---|
+|:----|:----|:----|
 |1|date|pk with noradcatalogin|
 |2|noradcatalogid|pk with date|	
 |3|card1| |
