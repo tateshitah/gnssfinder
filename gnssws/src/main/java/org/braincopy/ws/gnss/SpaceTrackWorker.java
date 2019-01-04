@@ -63,7 +63,7 @@ import sgp4v.Sgp4Unit;
 /**
  * 
  * @author Hiroaki Tateshita
- * @version 0.6.2
+ * @version 0.6.4
  * 
  */
 public class SpaceTrackWorker {
@@ -93,8 +93,7 @@ public class SpaceTrackWorker {
 	private Connection dbConnection;
 
 	/**
-	 * @param context
-	 *            the context to set
+	 * @param context the context to set
 	 */
 	public void setContext(ServletContext context) {
 		this.context = context;
@@ -197,7 +196,8 @@ public class SpaceTrackWorker {
 	}
 
 	/**
-	 * Get TLE data from Space Track website
+	 * Get TLE data from Space Track website. If internal DB (postgresql) already
+	 * has enough data, worker will not try to get TLE from space-track.
 	 * 
 	 * @param calendar
 	 * @param gnssStr
@@ -217,7 +217,11 @@ public class SpaceTrackWorker {
 		setTLEfmDB(result, noradCatalogIDList, calendar);
 
 		/*
-		 * in case of not enough tle info in internal DB
+		 * in case of not enough tle info in internal DB, the worker will try to get
+		 * from space track. the worker make "noradCatalogIDList" based on the list in
+		 * "satelliteDataBase.txt" usually if the worker try to get tle from space-track
+		 * once, the result should be stored in the internal DB so worker will not use
+		 * space track from second try but use database.
 		 */
 		if (noradCatalogIDList.length > result.size()) {
 			System.out.println("trying to get the TLE from Space Track. ");
@@ -348,8 +352,8 @@ public class SpaceTrackWorker {
 
 	/**
 	 * get TLE information from internal database and set the information to the
-	 * List which is the first parameter of this method. before using this
-	 * method, the connection with internal database should be established.
+	 * List which is the first parameter of this method. before using this method,
+	 * the connection with internal database should be established.
 	 * 
 	 * @param tleStringList
 	 * @param noradCatalogIDList
@@ -365,7 +369,7 @@ public class SpaceTrackWorker {
 		for (int i = 1; i < noradCatalogIDList.length; i++) {
 			sql += "OR noradCatalogID = ? ";
 		}
-		sql += ") and status = 1";
+		sql += ") and (status = 1 OR status = 2)";
 		PreparedStatement statement = dbConnection.prepareStatement(sql);
 		statement.setDate(1, new Date(calendar.getTimeInMillis()));
 		for (int i = 0; i < noradCatalogIDList.length; i++) {
@@ -412,7 +416,8 @@ public class SpaceTrackWorker {
 	 */
 	private String[] getNoradCatalogID(String gnssStr) {
 		String qzss = spaceTrackProperties.getProperty("QZSS");
-		String gps = spaceTrackProperties.getProperty("GPS") + "," + spaceTrackProperties.getProperty("GPS-Block-IIF") + "," + spaceTrackProperties.getProperty("GPS-III");
+		String gps = spaceTrackProperties.getProperty("GPS") + "," + spaceTrackProperties.getProperty("GPS-Block-IIF")
+				+ "," + spaceTrackProperties.getProperty("GPS-III");
 		String galileo = spaceTrackProperties.getProperty("GAL");
 		String noradCatNumStr = "";
 		if (gnssStr.contains("G") && gps != null) {
