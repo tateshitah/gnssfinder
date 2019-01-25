@@ -1,0 +1,87 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - SpaceTrackWorker",
+            "request": "launch",
+            "mainClass": "SpaceTrackWorker",
+            "projectName": "gnssws"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Main<gnssws>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "org.braincopy.orbit.Main",
+            "args": "",
+            "projectName": "gnssws"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-PositionECEF<gnssws>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "org.braincopy.orbit.PositionECEF",
+            "args": "",
+            "projectName": "gnssws"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SpaceTrackWorker<gnssws>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "org.braincopy.ws.gnss.SpaceTrackWorker",
+            "args": "",
+            "projectName": "gnssws"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-PSQLDriverVersion<gnssws>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "org.postgresql.util.PSQLDriverVersion",
+            "args": "",
+            "projectName": "gnssws"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Sgp4Unit<gnssws>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "sgp4v.Sgp4Unit",
+            "args": "",
+            "projectName": "gnssws"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Attach)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": "<debug port of remote debuggee>"
+        }
+    ]
+}

@@ -17,3 +17,6 @@ gradle-wrapper.properties
 .tomcatplugin
 workspace.xml
 GNSSFinder/app/release
+gnssws/target/
+gnssws/WEB-INF(old)/
+gnssws/.vscode/launch.test.json
