@@ -10,6 +10,8 @@
  * 
  * Hiroaki Tateshita 
  *  
+ * version 0.3.8
+ * 
  */
 
 
@@ -19,7 +21,7 @@ var gnssString = "JE";
 var url_DateTime = "2014-03-01_00:00:00";
 var update_timeout = null;
 // var url_string = "localhost:8080";
-var url_string = "braincopy.org";
+const url_string = "braincopy.org";
 
 /*
  * two dimensional array the number of trackCoordinatesArray[] is the number of
@@ -42,7 +44,7 @@ var trackLineArray = new Array();
 var markerArray = new Array();
 
 /*
- * this array is data from satellite database from text file
+ * this array of Satellite Object is data from satellite database from text file
  */
 var satArray = new Array();
 
@@ -54,7 +56,10 @@ var satNo = new Array();
 
 var isDrawn = false;
 
-
+/**
+ * Icon Array
+ */
+let marker_array = [];
 
 function initialize() {
 
@@ -151,15 +156,6 @@ function colorString(value) {
 	return '#FF4040';
 }
 
-function addInfowindow(text, latLng) {
-	/* Add information window at click point */
-	var text2 = url_Date + ": " + url_DataSource + "=" + text;
-	var infowindow = new google.maps.InfoWindow({
-		content: text2,
-		position: latLng
-	});
-	infowindow.open(map);
-}
 
 /**
  * class for satellite.
@@ -177,7 +173,7 @@ function Satellite(_catNo, _rnxStr, _imgStr, _description) {
  */
 function roadSatellite() {
 
-	var httpReq = new XMLHttpRequest();
+	let httpReq = new XMLHttpRequest();
 	httpReq.onreadystatechange = function callback_inRoadSatDB() {
 		var lines = new Array();
 		if (httpReq.readyState == 4 && httpReq.status == 200) {
@@ -199,10 +195,41 @@ function roadSatellite() {
 	};
 	const url =
 		'http://127.0.0.1:5500/WebContent/assets/satelliteDataBase.txt';
-	//var url = 'https://braincopy.org/WebContent/assets/satelliteDataBase.txt';
+	//  'https://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }
+
+function convertCoordinate(longitude, latitude) {
+	return ol.proj.transform([longitude, latitude], "EPSG:4326", "EPSG:900913");
+}
+
+/**
+ * 
+ * @param {*} ele_sat is should be Satellite object
+ */
+function satelliteStyle(ele_sat) {
+	let src_str = 'res/drawable/qzss.gif';
+	if (ele_sat.imgStr == "qzss") {
+		src_str = 'res/drawable/qzss.gif';
+	} else if (ele_sat.imgStr == "galileo") {
+		src_str = 'res/drawable/galileo.gif';
+	} else if (ele_sat.imgStr == "galileofoc") {
+		src_str = 'res/drawable/GalileoFOC.gif';
+	} else if (ele_sat.imgStr == "gpsBlockIIF") {
+		src_str = 'res/drawable/IIF.gif';
+	} else if (ele_sat.imgStr == "gpsBlockIIIA") {
+		src_str = 'res/drawable/GPS-III-A.png';
+	}
+	return new ol.style.Style({
+		image: new ol.style.Icon({
+			src: src_str,
+			scale: 0.3
+		})
+	});
+}
+
+
 
 /**
  * 
@@ -240,87 +267,28 @@ function createAndDrawTrackCoordinateArray(values) {
 				trackLineArray.push(new ol.Feature(lineStrings.transform('EPSG:4326', 'EPSG:3857')));
 			});
 
+			let marker = new ol.Feature({
+				geometry: new ol.geom.Point(convertCoordinate(ele[0][0], ele[0][1])),
+				name: satArray[index].description,
+				id: satArray[index].catNo
+			});
+			marker.setStyle(satelliteStyle(satArray[index]));
+			marker_array.push(marker);
+
 		}
 
-		/*
-		
-		var image = new google.maps.MarkerImage('res/drawable/ic_star.png',
-				new google.maps.Size(40, 40), new google.maps.Point(0, 0),
-				new google.maps.Point(10, 10), new google.maps.Size(20, 20));
-		if (satArray[index].imgStr == "qzss") {
-			image = new google.maps.MarkerImage('res/drawable/qzss.gif',
-					new google.maps.Size(300, 160),
-					new google.maps.Point(0, 0), new google.maps.Point(30, 20),
-					new google.maps.Size(80, 40));
-		} else if (satArray[index].imgStr == "galileo") {
-			image = new google.maps.MarkerImage('res/drawable/galileo.gif',
-					new google.maps.Size(300, 160),
-					new google.maps.Point(0, 0),
-					new google.maps.Point(60, 22.5), new google.maps.Size(90,
-							45));
-		} else if (satArray[index].imgStr == "galileofoc") {
-			image = new google.maps.MarkerImage('res/drawable/GalileoFOC.gif',
-					new google.maps.Size(300, 160),
-					new google.maps.Point(0, 0),
-					new google.maps.Point(60, 22.5), new google.maps.Size(90,
-							45));
-		} else if (satArray[index].imgStr == "gpsBlockIIF") {
-			image = new google.maps.MarkerImage('res/drawable/IIF.gif',
-					new google.maps.Size(300, 160),
-					new google.maps.Point(0, 0),
-					new google.maps.Point(60, 22.5), new google.maps.Size(80,
-							40));
-		}
-		markerArray[index] = new google.maps.Marker({
-			position : trackCoordinatesArray[index][0],
-			map : map,
-			icon : image
-		});
-		google.maps.event.addListener(markerArray[index], 'click', function() {
-			new google.maps.InfoWindow({
-				content : satArray[index].description,
-				position : trackCoordinatesArray[index][0]
-			}).open(markerArray[index].getMap());
-		});
-*/
+	
 	});
 
-	function convertCoordinate(longitude, latitude) {
-		return ol.proj.transform([longitude, latitude], "EPSG:4326", "EPSG:900913");
-	}
-	function pointStyleFunction(feature, resolution) {
-		return new ol.style.Style({
-			image: new ol.style.Icon({
-				src: 'res/drawable/qzss.gif',
-				scale: 0.3
-			}),
-			text: new ol.style.Text({
-				textAlign: 'center',
-				textBaseline: 'middle',
-				font: 'Arial',
-				text: feature.get('name'),
-				fill: new ol.style.Fill({ color: 'yellow' }),
-				stroke: new ol.style.Stroke({ color: 'blue', width: 5 }),
-				offsetX: 0,
-				offsetY: 0,
-				rotation: 0
-			})
-		});
-	}
-	var marker_array = [];
-	var marker = new ol.Feature({
-		geometry: new ol.geom.Point(convertCoordinate(139.622304, 35.7049394)),
-		name: 'Location'
-	});
-	marker_array.push(marker);
-	var markerSource = new ol.source.Vector({
+	let markerSource = new ol.source.Vector({
 		features: marker_array
 	});
-	var rabelLayer = new ol.layer.Vector({
-		source: markerSource,
-		style: pointStyleFunction
+
+	let rabelLayer = new ol.layer.Vector({
+		source: markerSource
 	});
-	var osmLayer = new ol.layer.Tile({
+
+	const osmLayer = new ol.layer.Tile({
 		source: new ol.source.OSM()
 	});
 
@@ -337,14 +305,28 @@ function createAndDrawTrackCoordinateArray(values) {
 		})
 	});
 
-	var map = new ol.Map({
+	let map = new ol.Map({
 		layers: [osmLayer, rabelLayer, lineVector],
 		target: document.getElementById('map'),
 		view: new ol.View({
-			center: convertCoordinate(131.129172, 32.068235),
+			center: convertCoordinate(131.129172, 12.068235),
 			zoom: 2
-		})
+		}),
+		controls: ol.control.defaults()
 	});
+
+	/**
+	 * popup window for a satellite
+	 */
+	let element = document.getElementById('popup');
+
+	let popup = new ol.Overlay({
+		element: element,
+		positioning: 'bottom-center',
+		stopEvent: false,
+		offset: [10, -150]
+	});
+	map.addOverlay(popup);
 
 	//alert("#4 here!!");
 
@@ -377,12 +359,17 @@ function createAndDrawTrackCoordinateArray(values) {
 		isDrawn = false;
 	});
 */
-	var select = new ol.interaction.Select();
+	let select = new ol.interaction.Select();
 	map.addInteraction(select);
 	select.on('select', function (e) {
-		if (e.target.getFeatures().getLength() > 0) {
-			var pagename = e.target.getFeatures().item(0).get('name');
-			window.location.href = 'Wiki.jsp?page=' + pagename;
+		if (e.target.getFeatures().getLength() >0) {
+			let name = e.target.getFeatures().item(0).get('name');
+			let id = e.target.getFeatures().item(0).get('id');
+			let coordinates = e.target.getFeatures().item(0).getGeometry().getCoordinates();
+			element.innerHTML = '<code>NORAD ID:'+id+'</code><br/>' + name;
+
+			popup.setPosition(coordinates);
+		}else{
 		}
 	});
 
@@ -393,9 +380,8 @@ function createAndDrawTrackCoordinateArray(values) {
  * input data to trackCoordinatesArray from values gotten via gnssws with jsonp format.
  * @param e
  *            element of values
- * @param index_val
  */
-function createTrackCoordinateArray(e, index_val) {
+function createTrackCoordinateArray(e) {
 	satArray.some(function (ele_sat, i) {
 		if (e.SatObservation.SatelliteNumber == ele_sat.catNo) {
 			if (e.SatObservation.Sensor.SensorLocation.Longitude < 0) {
@@ -409,6 +395,7 @@ function createTrackCoordinateArray(e, index_val) {
 					e.SatObservation.Sensor.SensorLocation.Latitude];
 			}
 			satNo[i]++;
+
 			return;
 		}
 	});

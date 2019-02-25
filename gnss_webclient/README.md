@@ -27,3 +27,10 @@ initialize()
 
     createTrackCoordinateArray
 
+##Drawing Rule
+GNSS satellite pictures are used in this application. I would like to define rule of pictures here.
+
+1. file: transparent png or gif file
+2. width: 300px
+3. height: 150px 
+

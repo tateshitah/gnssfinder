@@ -55,7 +55,7 @@ public class MapFragment extends Fragment {
 		webView.clearCache(true);
 		// webView.loadUrl("http://192.168.1.13:8080/gnss_webclient/sample05.html?gnss="
 		// + finalGnssString);
-		webView.loadUrl("http://braincopy.org/WebContent/sample05.html?gnss="
+		webView.loadUrl("https://braincopy.org/WebContent/groundTrack.html?gnss="
 				+ finalGnssString);
 		// webView.loadUrl("file:///android_asset/jstest.html");
 		return rootView;

@@ -41,7 +41,8 @@ var trackLineArray = new Array();
 var markerArray = new Array();
 
 /*
- * this array is data from satellite database from text file
+ * this array is data (the object of the Satellite class) 
+ * from satellite database from text file "satelliteDataBase.txt".
  */
 var satArray = new Array();
 
@@ -53,6 +54,11 @@ var satNo = new Array();
 var isDrawn = false;
 
 function initialize() {
+
+	alert("here2");
+
+
+	
 
 	/* Setting for initial map info. */
 	var mapOptions = {
@@ -203,7 +209,8 @@ function Satellite(_catNo, _rnxStr, _imgStr, _description) {
 }
 
 /**
- * road satellite data from text file. output is array of Satellite objects.
+ * road satellite data from text file from "satelliteDataBase.txt". 
+ * output is an array of Satellite objects: satArray[].
  * This method contains initialization of trackCoordinatesArray and satArray.
  */
 function roadSatellite() {
