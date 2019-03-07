@@ -33,4 +33,5 @@ GNSS satellite pictures are used in this application. I would like to define rul
 1. file: transparent png or gif file
 2. width: 300px
 3. height: 150px 
-
+4. font size: 25px
+5. Center of Mass should be center of picture

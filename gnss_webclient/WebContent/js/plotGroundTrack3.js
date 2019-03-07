@@ -210,8 +210,12 @@ function convertCoordinate(longitude, latitude) {
  */
 function satelliteStyle(ele_sat) {
 	let src_str = 'res/drawable/qzss.gif';
-	if (ele_sat.imgStr == "qzss") {
-		src_str = 'res/drawable/qzss.gif';
+	if (ele_sat.imgStr == "qzs-1") {
+		src_str = 'res/drawable/qzs-1.png';
+	} else if (ele_sat.imgStr == "qzs-2_4") {
+		src_str = 'res/drawable/qzs-2_4.png';
+	} else if (ele_sat.imgStr == "qzs-3") {
+		src_str = 'res/drawable/qzs-3.png';
 	} else if (ele_sat.imgStr == "galileo") {
 		src_str = 'res/drawable/galileo.gif';
 	} else if (ele_sat.imgStr == "galileofoc") {
@@ -277,7 +281,7 @@ function createAndDrawTrackCoordinateArray(values) {
 
 		}
 
-	
+
 	});
 
 	let markerSource = new ol.source.Vector({
@@ -324,7 +328,7 @@ function createAndDrawTrackCoordinateArray(values) {
 		element: element,
 		positioning: 'bottom-center',
 		stopEvent: false,
-		offset: [10, -150]
+		offset: [10, 0]
 	});
 	map.addOverlay(popup);
 
@@ -359,17 +363,24 @@ function createAndDrawTrackCoordinateArray(values) {
 		isDrawn = false;
 	});
 */
+
+	/**
+	 * when satellite is clicked
+	 */
 	let select = new ol.interaction.Select();
 	map.addInteraction(select);
 	select.on('select', function (e) {
-		if (e.target.getFeatures().getLength() >0) {
+		//		let c =e.target.getFeatures().getLength(); 
+		if (e.target.getFeatures().getLength() > 0) {
 			let name = e.target.getFeatures().item(0).get('name');
-			let id = e.target.getFeatures().item(0).get('id');
-			let coordinates = e.target.getFeatures().item(0).getGeometry().getCoordinates();
-			element.innerHTML = '<code>NORAD ID:'+id+'</code><br/>' + name;
+			if (name) {//if name is not undefined
+				let id = e.target.getFeatures().item(0).get('id');
+				let coordinates = e.target.getFeatures().item(0).getGeometry().getCoordinates();
+				element.innerHTML = '<code>NORAD ID:' + id + '</code><br/>' + name;
 
-			popup.setPosition(coordinates);
-		}else{
+				popup.setPosition(coordinates);
+			}
+		} else {
 		}
 	});
 
