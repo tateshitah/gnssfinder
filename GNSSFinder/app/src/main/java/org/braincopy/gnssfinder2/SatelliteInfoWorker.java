@@ -50,19 +50,24 @@ public class SatelliteInfoWorker extends Thread {
 	private int status = SatelliteInfoWorker.INITIAL_STATUS;
 	private String gnssString;
 	static final int INITIAL_STATUS = 0;
-	static final int CONNECTING = 1;
+	//static final int CONNECTING = 1;
 	static final int CONNECTED = 2;
 	static final int COMPLETED = 3;
 	static final int IMAGE_LOADED = 4;
 	// static final int LOADING_IMAGES = 5;
 	static final int INFORMATION_LOADED_WO_LOCATION = 6;
 
-	// static final int LOCATION_UPDATED = 7;
-	// static final int INFORMATION_LOADED_W_LOCATION = 8;
+	static final int LOCATION_SET = 7;
+	static final int INFORMATION_LOADED_W_LOCATION = 8;
+	static final int INFORMATION_LOADED = 9;
 
 	public SatelliteInfoWorker() {
 	}
 
+	/**
+	 * get satellite list from xml gotten by the web service.
+	 * @param doc
+	 */
 	public void createSatelliteArray(Document doc) {
 		NodeList satObsList = doc.getElementsByTagName("SatObservation");
 		NodeList satObs = null;
@@ -101,91 +106,32 @@ public class SatelliteInfoWorker extends Thread {
 		satArray = result;
 	}
 
+	/**
+	 * Azimuth and Elevation will be asked the web service to be calculated.
+	 * SatelliteDatabase.txt will be downloaded after previous azimuth and elevation are calculated.
+	 *
+	 */
 	@Override
 	public void run() {
 		Uri.Builder builder = new Uri.Builder();
-		builder.scheme("http");
-		builder.encodedAuthority("braincopy.org");
-		builder.path("/gnssws/az_and_el");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss",
-				Locale.US);
-		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-		builder.appendQueryParameter("dateTime", sdf.format(currentDate));
-		builder.appendQueryParameter("lat", Float.toString(lat));
-		builder.appendQueryParameter("lon", Float.toString(lon));
-		builder.appendQueryParameter("gnss", gnssString);
-
-        HttpURLConnection connection = null;
-        URL url = null;
-
-//        DefaultHttpClient client = new DefaultHttpClient();
-//		HttpUriRequest getRequest = new HttpGet(builder.build().toString());
-
-//		HttpResponse response = null;
+		HttpURLConnection connection = null;
+		URL url = null;
 		int statusCode;
-		try {
-            url = new URL(builder.build().toString());
-            connection = (HttpURLConnection)url.openConnection();
-            connection.connect();
 
-//            response = client.execute(getRequest);
-//			statusCode = response.getStatusLine().getStatusCode();
-            statusCode = connection.getResponseCode();
-
-			Document doc = null;
-			if (statusCode == HttpURLConnection.HTTP_OK){//HttpStatus.SC_OK) {
-//				HttpEntity entity = response.getEntity();
-
-				DocumentBuilderFactory factory = DocumentBuilderFactory
-						.newInstance();
-				try {
-					DocumentBuilder docBuilder = factory.newDocumentBuilder();
-//					doc = docBuilder.parse(entity.getContent());
-                    doc = docBuilder.parse(connection.getInputStream());
-					createSatelliteArray(doc);
-					// something strange. why image loaded?
-					// if (this.getStatus() == SatelliteInfoWorker.IMAGE_LOADED)
-					// {
-					// setStatus(SatelliteInfoWorker.INFORMATION_LOADED_W_LOCATION);
-					// } else {
-					setStatus(SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION);
-					// }
-				} catch (ParserConfigurationException e) {
-					Log.e("hiro", "context might be not expecting xml. " + e);
-					e.printStackTrace();
-				} catch (IllegalStateException e) {
-					Log.e("hiro", "context might be not expecting xml. " + e);
-					e.printStackTrace();
-				} catch (SAXException e) {
-					Log.e("hiro", "context might be not expecting xml. " + e);
-					e.printStackTrace();
-				} catch (IOException e) {
-					Log.e("hiro", "context might be not expecting xml. " + e);
-					e.printStackTrace();
-				}
-			}
-
-		} catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-
-		}
 
 		// from here, i will try to download satellite database text file
 		// temporary.
 
 //		getRequest = new HttpGet(
 //				"http://braincopy.org/WebContent/assets/satelliteDataBase.txt");
-        final String satelliteDatabaseURLString ="https://braincopy.org/WebContent/assets/satelliteDataBase.txt";
+		final String satelliteDatabaseURLString ="https://braincopy.org/WebContent/assets/satelliteDataBase.txt";
 		try {
-            url = new URL(satelliteDatabaseURLString);
-            connection = (HttpURLConnection)url.openConnection();
-            connection.connect();
-            //           response = client.execute(getRequest);
+			url = new URL(satelliteDatabaseURLString);
+			connection = (HttpURLConnection)url.openConnection();
+			connection.connect();
+			//           response = client.execute(getRequest);
 //			statusCode = response.getStatusLine().getStatusCode();
-            statusCode = connection.getResponseCode();
+			statusCode = connection.getResponseCode();
 
 			if (statusCode == HttpURLConnection.HTTP_OK){//HttpStatus.SC_OK) {
 
@@ -200,7 +146,7 @@ public class SatelliteInfoWorker extends Thread {
 				InputStream is;
 				try {
 //					is = response.getEntity().getContent();
-                    is = connection.getInputStream();
+					is = connection.getInputStream();
 					BufferedInputStream in = new BufferedInputStream(is, 1024);
 					BufferedOutputStream out;
 					file.createNewFile();
@@ -226,10 +172,80 @@ public class SatelliteInfoWorker extends Thread {
 				}
 			}
 		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		//get Azimuth and Elevation
+		// in this moment, lat and lon should be updated.
+
+		builder.scheme("https");
+		builder.encodedAuthority("braincopy.org");
+		builder.path("/gnssws/az_and_el");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss",
+				Locale.US);
+		sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		builder.appendQueryParameter("dateTime", sdf.format(currentDate));
+		builder.appendQueryParameter("lat", Float.toString(lat));
+		builder.appendQueryParameter("lon", Float.toString(lon));
+		builder.appendQueryParameter("gnss", gnssString);
+
+
+//        DefaultHttpClient client = new DefaultHttpClient();
+//		HttpUriRequest getRequest = new HttpGet(builder.build().toString());
+
+//		HttpResponse response = null;
+		try {
+            url = new URL(builder.build().toString());
+            connection = (HttpURLConnection)url.openConnection();
+            connection.connect();
+
+//            response = client.execute(getRequest);
+//			statusCode = response.getStatusLine().getStatusCode();
+            statusCode = connection.getResponseCode();
+
+			Document doc = null;
+			if (statusCode == HttpURLConnection.HTTP_OK){//HttpStatus.SC_OK) {
+//				HttpEntity entity = response.getEntity();
+
+				DocumentBuilderFactory factory = DocumentBuilderFactory
+						.newInstance();
+				try {
+					DocumentBuilder docBuilder = factory.newDocumentBuilder();
+//					doc = docBuilder.parse(entity.getContent());
+                    doc = docBuilder.parse(connection.getInputStream());
+					createSatelliteArray(doc);
+					// something strange. why image loaded?
+					// if (this.getStatus() == SatelliteInfoWorker.IMAGE_LOADED)
+					// {
+					setStatus(SatelliteInfoWorker.INFORMATION_LOADED);
+					// } else {
+					//setStatus(SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION);
+					// }
+				} catch (ParserConfigurationException e) {
+					Log.e("hiro", "context might be not expecting xml. " + e);
+					e.printStackTrace();
+				} catch (IllegalStateException e) {
+					Log.e("hiro", "context might be not expecting xml. " + e);
+					e.printStackTrace();
+				} catch (SAXException e) {
+					Log.e("hiro", "context might be not expecting xml. " + e);
+					e.printStackTrace();
+				} catch (IOException e) {
+					Log.e("hiro", "context might be not expecting xml. " + e);
+					e.printStackTrace();
+				}
+			}
+
+		} catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        } finally {
+
+		}
+
     }
 
 	public void setLatLon(float _lat, float _lon) {

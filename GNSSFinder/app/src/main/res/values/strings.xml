@@ -21,5 +21,9 @@
     <string name="label_longitude">Longitude[deg]</string>
     <string name="label_altitude">Altitude[m]</string>
     <string name="menu_privacy">Privacy Policy</string>
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="no_location_detected">
+        No location detected. Make sure location is enabled on the device.
+    </string>
 
 </resources>

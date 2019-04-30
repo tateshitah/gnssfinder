@@ -37,6 +37,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
+import static java.lang.Thread.sleep;
+
 /**
  * a Activity class of for camera mode of GNSS Finder.
  *
@@ -50,6 +55,7 @@ public class CameraActivity extends ARActivity {
     // private float lat, lon;
     private Satellite[] satellites;
     private SatelliteInfoWorker worker;
+    private String gnssString;
     /**
      * a kind of hashtable for saving setting information.
      */
@@ -61,29 +67,66 @@ public class CameraActivity extends ARActivity {
 
         pref = getSharedPreferences("gnssfinder", Activity.MODE_PRIVATE);
         this.setUsingGPS(pref.getBoolean("usingGPS", false));
-        this.lat = pref.getFloat("defaultLat", 35.660994f);
-        this.lon = pref.getFloat("defaultLon", 139.677619f);
+        this.lat = pref.getFloat("defaultLat", 35.50000f);
+        this.lon = pref.getFloat("defaultLon", 139.50000f);
         this.alt = pref.getFloat("defaultAlt", 0f);
-
 
         gnssArView = new GNSSARView(this);
 
         this.setARView(gnssArView);
 
-        final String gnssString = SettingFragment.getGNSSString(this);
+        gnssString = SettingFragment.getGNSSString(this);
         ConnectivityManager cm = (ConnectivityManager) this
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+
+
         if (networkInfo != null && networkInfo.isConnected()) {
-            worker = new SatelliteInfoWorker();
-            worker.setLatLon(lat, lon);
-            worker.setCurrentDate(new Date(System.currentTimeMillis()));
-            worker.setGnssString(gnssString);
-            worker.start();
-            worker.setStatus(SatelliteInfoWorker.CONNECTED);
-            gnssArView.setStatus("connected");
+            // Try to get Location. If failed...
+            if(this.isUsingGPS()){
+                this.getLocation();
+            }else{
+                startWorkerAfterLocationUpdated();
+            }
         }
 
+    }
+
+    /**
+     * This method will be called after Location is decided.
+     */
+    private void startWorkerAfterLocationUpdated(){
+        worker = new SatelliteInfoWorker();
+        worker.setStatus(SatelliteInfoWorker.LOCATION_SET);
+        worker.setLatLon(lat, lon);
+        worker.setCurrentDate(new Date(System.currentTimeMillis()));
+        worker.setGnssString(gnssString);
+        worker.start();
+        gnssArView.setStatus("Location is Set.");
+    }
+
+    /**
+     * This method is called in the getLocation method.
+     * In order to use latitude and longitude information
+     * for this application, this method should be overrided.
+     * @return
+     */
+    @Override
+    protected OnCompleteListener getOnCompleteListener(){
+        return new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(Task<Location> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    mLastLocation = task.getResult();
+                    lat = (float) mLastLocation.getLatitude();
+                    lon = (float) mLastLocation.getLongitude();
+
+                    startWorkerAfterLocationUpdated();
+
+                } else {
+                }
+            }
+        };
     }
 
     /**
@@ -126,12 +169,12 @@ public class CameraActivity extends ARActivity {
     public void onSensorChanged(SensorEvent event) {
 
         if (worker != null) {
-            if (worker.getStatus() == SatelliteInfoWorker.INFORMATION_LOADED_WO_LOCATION) {
+            if (worker.getStatus() == SatelliteInfoWorker.INFORMATION_LOADED) {
                 this.satellites = worker.getSatArray();
                 loadImages();
                 worker.setStatus(SatelliteInfoWorker.IMAGE_LOADED);
                 gnssArView.setSatellites(satellites);
-                gnssArView.setStatus("getting location...");
+                gnssArView.setStatus("image loaded.");
                 // this.touchedFlags = new boolean[this.satellites.length];
                 // for (int i = 0; i < this.touchedFlags.length; i++) {
                 // this.touchedFlags[i] = false;
@@ -170,6 +213,10 @@ public class CameraActivity extends ARActivity {
         return result;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean loadInformationFromNW() {
         boolean result = false;
         Resources resources = this.getResources();
@@ -244,19 +291,7 @@ public class CameraActivity extends ARActivity {
             for (int i = 0; i < satellites.length; i++) {
                 if (satellites[i].getCatNo().equals(cursor.getString(0))) {
                     satellites[i].setDescription(cursor.getString(2));
-                    if (gnssStr.equals("qzss")) {
-                        satellites[i].setImage(BitmapFactory.decodeResource(
-                                resources, R.drawable.qzss));
-                    } else if (gnssStr.equals("galileo")) {
-                        satellites[i].setImage(BitmapFactory.decodeResource(
-                                resources, R.drawable.galileo));
-                    } else if (gnssStr.equals("galileofoc")) {
-                        satellites[i].setImage(BitmapFactory.decodeResource(
-                                resources, R.drawable.galileofoc));
-                    } else if (gnssStr.equals("gpsBlockIIF")) {
-                        satellites[i].setImage(BitmapFactory.decodeResource(
-                                resources, R.drawable.iif));
-                    }
+                    satellites[i].setImage(Satellite.getGNSSImage(gnssStr,resources));
                     break;
                 }
             }
@@ -334,6 +369,7 @@ public class CameraActivity extends ARActivity {
         return result;
     }
 
+    /*
     @Override
     public void onLocationChanged(Location arg0) {
         super.onLocationChanged(arg0);
@@ -350,7 +386,7 @@ public class CameraActivity extends ARActivity {
                         .setStatus("position is updated and information loaded.");
             }
         }
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -10,7 +10,8 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 
 /**
- * 
+ * Drawing Pictures on the view!
+ *
  * @author Hiroaki Tateshita
  * @version 0.7.2
  * 

@@ -40,7 +40,7 @@ public class Satellite extends ARObject {
 		 * default
 		 */
 		Resources res = context.getResources();
-		setImage(BitmapFactory.decodeResource(res, R.drawable.qzss));
+		setImage(BitmapFactory.decodeResource(res, R.drawable.qzs_1));
 		setAzimuth(270);
 		setElevation(60);
 	}
@@ -102,16 +102,17 @@ public class Satellite extends ARObject {
 	}
 
 	/**
-	 * 
+	 * get GNSS images from drawable images by using string described
+	 * in the satellite info database.
+	 * So if the image files of the GNSS satellites,
+	 * this method should be modified.
 	 * @param gnssStr
 	 * @param resources
-	 * @return
+	 * @return Bitmap object
 	 */
 	public static Bitmap getGNSSImage(String gnssStr, Resources resources) {
 		Bitmap result = null;
-		if (gnssStr.equals("qzss")) {
-			result = BitmapFactory.decodeResource(resources, R.drawable.qzss);
-		} else if (gnssStr.equals("galileo")) {
+		if (gnssStr.equals("galileo")) {
 			result = BitmapFactory
 					.decodeResource(resources, R.drawable.galileo);
 		} else if (gnssStr.equals("galileofoc")) {
@@ -119,6 +120,14 @@ public class Satellite extends ARObject {
 					R.drawable.galileofoc);
 		} else if (gnssStr.equals("gpsBlockIIF")) {
 			result = BitmapFactory.decodeResource(resources, R.drawable.iif);
+		} else if (gnssStr.equals("qzs-1")) {
+			result = BitmapFactory.decodeResource(resources, R.drawable.qzs_1);
+		} else if (gnssStr.equals("qzs-2_4")) {
+			result = BitmapFactory.decodeResource(resources, R.drawable.qzs_2_4);
+		} else if (gnssStr.equals("qzs-3")) {
+			result = BitmapFactory.decodeResource(resources, R.drawable.qzs_3);
+		}else if (gnssStr.equals("gpsBlockIIIA")) {
+			result = BitmapFactory.decodeResource(resources, R.drawable.gps_iii_a);
 		}
 		return result;
 	}

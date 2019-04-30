@@ -194,8 +194,8 @@ function roadSatellite() {
 		}
 	};
 	const url =
-		'http://127.0.0.1:5500/WebContent/assets/satelliteDataBase.txt';
-	//  'https://braincopy.org/WebContent/assets/satelliteDataBase.txt';
+	//	'http://127.0.0.1:5500/WebContent/assets/satelliteDataBase.txt';
+	  'https://braincopy.org/WebContent/assets/satelliteDataBase.txt';
 	httpReq.open("GET", url, true);
 	httpReq.send(null);
 }

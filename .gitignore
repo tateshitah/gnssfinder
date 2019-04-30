@@ -21,3 +21,6 @@ gnssws/target/
 gnssws/WEB-INF(old)/
 gnssws/.vscode/launch.test.json
 GNSSFinder/local.properties
+GNSSFinder/.settings/org.eclipse.buildship.core.prefs
+GNSSFinder/.vscode/settings.json
+GNSSFinder/app/.settings/org.eclipse.buildship.core.prefs
