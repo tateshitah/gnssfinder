@@ -120,6 +120,12 @@ public class ARView extends View {
 
 	}
 
+	/**
+	 *
+	 * @param orientation
+	 * @param lat_
+	 * @param lon_
+	 */
 	public void drawScreen(float[] orientation, float lat_, float lon_) {
 		direction = ((float) Math.toDegrees(orientation[0]) + 360) % 360;
 		pitch = (float) Math.toDegrees(orientation[1]);
@@ -127,6 +133,7 @@ public class ARView extends View {
 		this.lat = lat_;
 		this.lon = lon_;
 
+		//set parameters of the screen plane by using sensor values.
 		screenPlane.setParam(
 				(float) (Math.cos(orientation[1]) * Math.sin(orientation[0])),
 				-(float) Math.sin(orientation[1]),

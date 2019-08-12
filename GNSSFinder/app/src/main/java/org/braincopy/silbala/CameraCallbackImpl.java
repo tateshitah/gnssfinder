@@ -31,8 +31,12 @@ import java.util.Locale;
  * class for camera and add this callback implementation object to Surface
  * Holder of the view class.
  *
+ * Example:
+ * see ARActivity.onCreate()
+ *
  * @author Hiroaki Tateshita
  * @version 0.2.2
+ * @deprecated
  */
 public class CameraCallbackImpl implements SurfaceHolder.Callback,
         ShutterCallback, PictureCallback {

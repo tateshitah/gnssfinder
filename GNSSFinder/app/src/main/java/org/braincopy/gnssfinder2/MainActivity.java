@@ -27,7 +27,7 @@ import android.widget.TextView;
  *  The Main Activity class of GNSS Finder.
  *
  * @author Hiroaki Tateshita
- * @version 1.1.0
+ * @version 1.2.0
  */
 public class MainActivity extends Activity {
 

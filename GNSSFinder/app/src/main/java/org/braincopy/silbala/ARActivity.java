@@ -1,37 +1,47 @@
 package org.braincopy.silbala;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import org.braincopy.gnssfinder2.MainActivity;
-import org.braincopy.gnssfinder2.R;
-
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
+import android.graphics.drawable.Drawable;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
-//import android.support.annotation.NonNull;
-//import android.support.v4.app.ActivityCompat;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SurfaceHolder;
+import android.view.Surface;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -39,13 +49,29 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.core.app.ActivityCompat;
+//Put "R package" of YOUR project
+import org.braincopy.gnssfinder2.R;
 
-import static android.content.ContentValues.TAG;
-//import com.google.android.gms.location.LocationServices;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 
 /**
+ * This class is supposed to be used an Activity of Android by being extended by
+ * developers who use Silbara library.
+ * <p>
+ * This class will provide following functions:
+ * sensors such as GPS, accelerometer, magnetic sensors, and Camera.
+ * The Developers should implement create relative position data of the objects
+ * which they want to show as AR on the display of Android.
+ * <p>
  * The coordinate system of actual_orientation has been adjusted as follows:
  * <ol>
  * <li>right-handed coordinate system</li>
@@ -57,12 +83,11 @@ import static android.content.ContentValues.TAG;
  * <li>angle increases for clockwise for all axis. The coordinate system should
  * be adjusted for each devices.</li>
  * </ol>
- * Call me maybe, Royals, Grace Kelly
  *
  * @author Hiroaki Tateshita
- * @version 0.4.7
+ * @version 0.6.0
  */
-public class ARActivity extends Activity implements SensorEventListener {
+public class ARActivity extends Activity implements SensorEventListener, TextureView.SurfaceTextureListener {
     private SensorManager sensorManager;
     private float[] accelerometerValues = new float[3];
     private float[] magneticValues = new float[3];
@@ -73,7 +98,7 @@ public class ARActivity extends Activity implements SensorEventListener {
     private LocationManager locationManager;
     public float lat, lon, alt;
     private GeomagneticField geomagneticField;
-    CameraCallbackImpl callbackImple;
+    //    CameraCallbackImpl callbackImple;
     private boolean isUsingGPS = false;
 
     /**
@@ -99,29 +124,155 @@ public class ARActivity extends Activity implements SensorEventListener {
 
     public final float TOUCH_AREA_SIZE = 150;
 
+    /**
+     * for camera2
+     */
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
+
+    /**
+     * for camera2
+     */
+    private String mCameraId;
+
+    private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
+        @Override
+        public void onOpened(@NonNull CameraDevice cameraDevice) {
+            //When succeeded to connect CameraDevice, set the object as field member of this class.
+            mCameraDevice = cameraDevice;
+            try {
+                createCameraPreviewSession();    //
+            } catch (CameraAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
+            cameraDevice.close();
+            mCameraDevice = null;
+        }
+
+        @Override
+        public void onError(@NonNull CameraDevice cameraDevice, int error) {
+            cameraDevice.close();
+            mCameraDevice = null;
+        }
+    };
+    private CameraDevice mCameraDevice;
+    CameraCaptureSession mCaptureSession = null;
+    CaptureRequest mPreviewRequest = null;
+
+    TextureView mTextureView;
+    private CaptureRequest.Builder mPreviewRequestBuilder;
+    private SurfaceView mCamView;
+
+    private void openCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestCameraPermission();
+            return;
+        }
+        CameraManager mCameraManager = (CameraManager) this.getSystemService(Context.CAMERA_SERVICE);
+        String[] cameraIdList = null;
+        try {
+            if (mCameraManager != null) {
+                cameraIdList = mCameraManager.getCameraIdList();
+                for (String cameraId : cameraIdList) {
+                    CameraCharacteristics characteristics
+                            = mCameraManager.getCameraCharacteristics(cameraId);
+                    if (characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK) {
+                        mCameraId = cameraId;
+
+                        mCameraManager.openCamera(mCameraId, mStateCallback, null);
+
+
+                        return;
+                    } else {
+                        continue;
+                    }
+                }
+            }
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+//        manager.openCamera(mCameraId, mStateCallback, mBackgroundHandler);
+    }
+
+    private void createCameraPreviewSession() throws CameraAccessException {
+        SurfaceTexture texture = mTextureView.getSurfaceTexture();
+
+        // set meaningless value
+        texture.setDefaultBufferSize(1080, 1920);
+
+        Surface surface = new Surface(texture);
+
+        // create CaptureRequest
+        mPreviewRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+        mPreviewRequestBuilder.addTarget(surface);
+
+        // create CameraCaptureSession
+        mCameraDevice.createCaptureSession(Arrays.asList(surface),
+                new CameraCaptureSession.StateCallback() {
+
+                    @Override
+                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                        //when Session configuration is ready, preview will start
+                        mCaptureSession = cameraCaptureSession;
+                        try {
+                            // Camera view start
+                            mPreviewRequest = mPreviewRequestBuilder.build();
+                            mCaptureSession.setRepeatingRequest(mPreviewRequest, null, null);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                        //when Session configuration failed
+                        Log.e(TAG, "error");
+                    }
+                }, null);
+
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ar);
+        setContentView(R.layout.activity_ar2);
+        mTextureView = (TextureView) findViewById(R.id.textureView);
 
-        callbackImple = new CameraCallbackImpl();
-        SurfaceView camView = (SurfaceView) findViewById(R.id.cam_view);
-        SurfaceHolder holder = camView.getHolder();
+        // in the onSurfaceTextureAvailable(), openCamera() is called.
+        mTextureView.setSurfaceTextureListener(this);
+
+
+        /*
+        //callbackImple = new CameraCallbackImpl();
+        //mCamView = (SurfaceView) findViewById(R.id.cam_view);
+        SurfaceHolder holder = mCamView.getHolder();
         // holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         holder.addCallback(callbackImple);
 
+*/
         ImageButton shutterButton = (ImageButton) findViewById(R.id.cameraShutter);
-        shutterButton.setOnClickListener(new OnClickListener() {
+        shutterButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                callbackImple.takePicture();
-
+                try {
+                    takePicture();
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    //could not save image file
+                    e.printStackTrace();
+                }
             }
         });
-
+/*
         callbackImple.setContentResolver(this.getContentResolver());
-
+*/
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         listMag = sensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
         listAcc = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
@@ -138,6 +289,105 @@ public class ARActivity extends Activity implements SensorEventListener {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
+    }
+
+    private void takePicture() throws CameraAccessException, IOException {
+        //stop preview view
+        mCaptureSession.stopRepeating();
+        File file = null;
+        if (mTextureView.isAvailable()) {
+
+            //get image shown on TextureView as Bitmap
+           // Bitmap bmp = Bitmap.createBitmap(mTextureView.getWidth(),
+             //       mTextureView.getHeight(), Bitmap.Config.ARGB_8888);
+            Bitmap bmp = mTextureView.getBitmap();
+
+            //get Image shown on ARView as Bitmap
+            Bitmap arBmp = Bitmap.createBitmap(arView.getWidth(),
+                    arView.getHeight(), Bitmap.Config.ARGB_8888);
+           // Drawable arDrawable = arView.getBackground();
+
+            //combine images
+            Bitmap offBitmap = Bitmap.createBitmap(bmp.getWidth(),
+                    bmp.getHeight(), Bitmap.Config.ARGB_8888);
+
+            Canvas canvasForARView = new Canvas(arBmp);
+           // if(arDrawable != null){
+             //   arDrawable.draw(canvasForARView);
+            //}
+            arView.draw(canvasForARView);
+
+            Canvas canvasForCombine = new Canvas(bmp);
+
+            canvasForCombine.drawBitmap(bmp, null, new Rect(0, 0,
+                    bmp.getWidth(), bmp.getHeight()), null);
+            canvasForCombine.drawBitmap(arBmp, null, new Rect(0, 0,
+                    bmp.getWidth(), bmp.getHeight()), null);
+
+            // storing the picture data on the android device.
+            FileOutputStream fos = null;
+
+            Date today = new Date();
+            SimpleDateFormat sdFormat = new SimpleDateFormat(
+                    "yyyy_MM_dd_hh_mm_ss_SSS", Locale.JAPAN);
+            String fileName = sdFormat.format(today) + ".jpg";
+
+            String strFolder = Environment
+                    .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                    + "/silbala/";
+            File folder = new File(strFolder);
+            file = new File(strFolder + fileName);
+            try {
+
+                if (!folder.exists()) {
+                    folder.mkdir();
+                }
+                if (file.createNewFile()) {
+                    fos = new FileOutputStream(file);
+                    //arBmp.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+                    Log.i(TAG, "saved successfully: " + strFolder + fileName);
+                    fos.close();
+                }
+            } catch (FileNotFoundException e) {
+                Log.e(TAG, e.getMessage());
+            } catch (IOException e) {
+                Log.e(TAG,
+                        "IOException: " + strFolder + fileName + ", "
+                                + e.getMessage());
+            }
+        }
+        // restart camera preview
+        mCaptureSession.setRepeatingRequest(mPreviewRequest, null, null);
+
+        if (file != null) {
+            //If the image file was saved successfully, notify with toast
+            Toast.makeText(this, "Saved: " + file, Toast.LENGTH_SHORT).show();
+
+
+        // In order to notify the existence of this file to Android OS, this procedure is necessary
+            Uri uri = Uri.fromFile(file);
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.TITLE, uri.getLastPathSegment());
+            values.put(MediaStore.Images.Media.DISPLAY_NAME,
+                    uri.getLastPathSegment());
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+            values.put(MediaStore.Images.Media.DATA, uri.getPath());
+            values.put(MediaStore.Images.Media.DATE_TAKEN,
+                    System.currentTimeMillis());
+
+            this.getContentResolver().insert(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        }
+    }
+
+    private void requestCameraPermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            //new ConfirmationDialog().show(getChildFragmentManager(), FRAGMENT_DIALOG);
+            Log.d(TAG, "hey, camera was not permitted.");
+        } else {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        }
     }
 
     @Override
@@ -177,7 +427,7 @@ public class ARActivity extends Activity implements SensorEventListener {
             if (!checkPermissions()) {
                 requestPermissions();
             } else {
-                    }
+            }
         }
         sensorManager.registerListener(this, listMag.get(0),
                 SensorManager.SENSOR_DELAY_NORMAL);
@@ -280,9 +530,10 @@ public class ARActivity extends Activity implements SensorEventListener {
 
     /**
      * should be overrided.
+     *
      * @return
      */
-    protected OnCompleteListener getOnCompleteListener(){
+    protected OnCompleteListener getOnCompleteListener() {
         return new OnCompleteListener<Location>() {
             @Override
             public void onComplete(Task<Location> task) {
@@ -404,7 +655,7 @@ public class ARActivity extends Activity implements SensorEventListener {
      */
     public void setARView(ARView arview_) {
         this.arView = arview_;
-        callbackImple.setOverlayView(arView);
+//        callbackImple.setOverlayView(arView);
         addContentView(arView, new LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT));
 
@@ -417,4 +668,24 @@ public class ARActivity extends Activity implements SensorEventListener {
         return this.arView;
     }
 
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        openCamera();
+
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+    }
 }

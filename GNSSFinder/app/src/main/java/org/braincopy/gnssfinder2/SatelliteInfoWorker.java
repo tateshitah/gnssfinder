@@ -39,7 +39,7 @@ import android.util.Log;
  * Internet.
  * 
  * @author Hiroaki Tateshita
- * @version 0.8.0
+ * @version 0.9.0
  * 
  */
 public class SatelliteInfoWorker extends Thread {
@@ -55,10 +55,10 @@ public class SatelliteInfoWorker extends Thread {
 	static final int COMPLETED = 3;
 	static final int IMAGE_LOADED = 4;
 	// static final int LOADING_IMAGES = 5;
-	static final int INFORMATION_LOADED_WO_LOCATION = 6;
+	//static final int INFORMATION_LOADED_WO_LOCATION = 6;
 
 	static final int LOCATION_SET = 7;
-	static final int INFORMATION_LOADED_W_LOCATION = 8;
+	//static final int INFORMATION_LOADED_W_LOCATION = 8;
 	static final int INFORMATION_LOADED = 9;
 
 	public SatelliteInfoWorker() {

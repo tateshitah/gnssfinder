@@ -46,7 +46,7 @@ import static java.lang.Thread.sleep;
  * a Activity class of for camera mode of GNSS Finder.
  *
  * @author Hiroaki Tateshita
- * @version 1.1.0
+ * @version 1.1.1
  */
 public class CameraActivity extends ARActivity {
     float gapBtwnWindowAndView;
